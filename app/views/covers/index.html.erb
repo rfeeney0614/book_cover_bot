@@ -1,31 +1,27 @@
 <h2>Covers</h2>
-<table
-  data-toggle="table"
-  data-pagination="true"
-  data-search="true"
-  data-show-columns="true"
-  data-multiple-select-row="true"
-  data-click-to-select="true">
-  <thead>
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+<table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+  <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
     <tr>
-      <th data-field="state" data-checkbox="true"></th>
-      <th data-field="book" data-sortable="true">Book</th>
-      <th data-field="edition" data-sortable="true">Edition </th>
-      <th data-field="format" data-sortable="true">Format </th>
+      <th></th>
+      <th>Book</th>
+      <th>Edition </th>
+      <th>Format </th>
       <th>Image </th>
     </tr>
   </thead>
   <tbody>
    <% @covers.each do |cover| %>
-    <tr>
-      <td></td>
-      <td><%= cover.book.title%></td>
-      <td><%= cover.edition%></td>
-      <td><%=cover.format %></td>
-      <td>
+    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+      <th scope="col" class="px-6 py-3"></td>
+      <th scope="col" class="px-6 py-3"><%= cover.book.title%></td>
+      <th scope="col" class="px-6 py-3"><%= cover.edition%></td>
+      <th scope="col" class="px-6 py-3"><%=cover.format %></td>
+      <th scope="col" class="px-6 py-3">
         <%= link_to image_tag(cover.image.variant(:thumb)), rails_blob_path(cover.image, disposition: 'attachment') %>
       </td>
     </tr>
     <% end %>
   </tbody>
  </table>
+ </div>
