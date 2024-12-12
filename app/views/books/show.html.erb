@@ -1,0 +1,48 @@
+<h1><%= @book.title %></h1>
+
+<p><%= @book.author %></p>
+
+<h2>Covers</h2>
+<table class="table table-sm table-bordered table-hover table-inverse table-responsive">
+  <thead class="thead-dark">
+    <tr>
+      <th>Edition </th>
+      <th>Format </th>
+      <th>Image </th>
+    </tr>
+  </thead>
+  <tbody>
+   <% @book.covers.each do |cover| %>
+    <tr>
+      <td><%= cover.edition%></td>
+      <td><%=cover.format %></td><td>
+      <td><%=image_tag cover.image.variant(:thumb) %></td>
+    </tr>
+    <% end %>
+  </tbody>
+ </table>
+
+<h2>Add a cover:</h2>
+<%= form_with model: [ @book, @book.covers.build ] do |form| %>
+  <p>
+    <%= form.label :edition %><br>
+    <%= form.text_field :edition %>
+  </p>
+  <p>
+    <%= form.label :format %><br>
+    <%= form.text_field :format %>
+  </p>
+  <p>
+    <%= form.file_field :image %>
+  </p>
+  <p>
+  <%= form.submit %>
+</p>
+<% end %>
+<ul>
+  <li><%= link_to "Edit", edit_book_path(@book) %></li>
+  <li><%= link_to "Destroy", book_path(@book), data: {
+                  turbo_method: :delete,
+                  turbo_confirm: "Are you sure?"
+                } %></li>
+</ul>

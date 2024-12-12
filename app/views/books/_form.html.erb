@@ -1,0 +1,20 @@
+<h1>New Book</h1>
+
+<%= form_with model: book do |form| %>
+  <div>
+    <%= form.label :title %><br>
+    <%= form.text_field :title %>
+    <% book.errors.full_messages_for(:title).each do |message| %>
+      <div><%= message %></div>
+    <% end %>
+  </div>
+
+  <div>
+    <%= form.label :author %><br>
+    <%= form.text_field :author %>
+  </div>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>
