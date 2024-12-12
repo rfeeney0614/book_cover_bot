@@ -15,8 +15,10 @@
    <% @book.covers.each do |cover| %>
     <tr>
       <td><%= cover.edition%></td>
-      <td><%=cover.format %></td><td>
-      <td><%=image_tag cover.image.variant(:thumb) %></td>
+      <td><%=cover.format %></td>
+      <td>
+        <%= link_to image_tag(cover.image.variant(:thumb)), rails_blob_path(cover.image, disposition: 'attachment') %>
+      </td>
     </tr>
     <% end %>
   </tbody>
