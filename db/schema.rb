@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_11_213154) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_12_202849) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -48,14 +48,33 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_11_213154) do
 
   create_table "covers", force: :cascade do |t|
     t.string "edition"
-    t.string "format"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "book_id", null: false
+    t.integer "format_id", null: false
     t.index ["book_id"], name: "index_covers_on_book_id"
+    t.index ["format_id"], name: "index_covers_on_format_id"
+  end
+
+  create_table "formats", force: :cascade do |t|
+    t.string "name"
+    t.integer "width"
+    t.integer "height"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "job_orders", force: :cascade do |t|
+    t.integer "quantity"
+    t.integer "cover_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cover_id"], name: "index_job_orders_on_cover_id"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "covers", "books"
+  add_foreign_key "covers", "formats"
+  add_foreign_key "job_orders", "covers"
 end

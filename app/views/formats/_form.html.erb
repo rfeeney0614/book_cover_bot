@@ -1,0 +1,23 @@
+<%= form_with model: format do |form| %>
+  <div>
+    <%= form.label :name %><br>
+    <%= form.text_field :name %>
+    <% format.errors.full_messages_for(:name).each do |message| %>
+      <div><%= message %></div>
+    <% end %>
+  </div>
+
+  <div>
+    <%= form.label :width %><br>
+    <%= form.text_field :width %>
+  </div>
+
+  <div>
+    <%= form.label :height %><br>
+    <%= form.text_field :height %>
+  </div>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>

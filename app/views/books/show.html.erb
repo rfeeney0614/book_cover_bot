@@ -2,27 +2,7 @@
 
 <p><%= @book.author %></p>
 
-<h2>Covers</h2>
-<table class="table table-sm table-bordered table-hover table-inverse table-responsive">
-  <thead class="thead-dark">
-    <tr>
-      <th>Edition </th>
-      <th>Format </th>
-      <th>Image </th>
-    </tr>
-  </thead>
-  <tbody>
-   <% @book.covers.each do |cover| %>
-    <tr>
-      <td><%= cover.edition%></td>
-      <td><%=cover.format %></td>
-      <td>
-        <%= link_to image_tag(cover.image.variant(:thumb)), rails_blob_path(cover.image, disposition: 'attachment') %>
-      </td>
-    </tr>
-    <% end %>
-  </tbody>
- </table>
+<%= render partial: "covers/covers", collection: @book.covers %>
 
 <h2>Add a cover:</h2>
 <%= form_with model: [ @book, @book.covers.build ] do |form| %>
@@ -32,7 +12,7 @@
   </p>
   <p>
     <%= form.label :format %><br>
-    <%= form.text_field :format %>
+    <%= form.collection_select :format_id, Format.order(:name),:id,:name %>
   </p>
   <p>
     <%= form.file_field :image %>

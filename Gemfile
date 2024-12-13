@@ -64,3 +64,5 @@ group :test do
 end
 
 gem "tailwindcss-rails", "~> 3.0"
+
+gem "hexapdf", "~> 1.0"
