@@ -2,10 +2,30 @@ class CoversController < ApplicationController
   def index
     @covers = Cover.search(params[:search])
   end
+
+  def new
+    @book = Book.find(params[:book_id])
+    @cover = Cover.new
+  end
+
   def create
     @book = Book.find(params[:book_id])
     @comment = @book.covers.create(cover_params)
     redirect_to book_path(@book)
+  end
+
+  def edit
+   @cover = Cover.find(params[:id])
+  end
+
+  def update
+    @cover = Cover.find(params[:id])
+
+    if @cover.update(cover_params)
+      redirect_to params[:previous_request]
+    else
+      render :edit, status: :unprocessable_entity
+    end
   end
 
   def destroy

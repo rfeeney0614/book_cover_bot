@@ -1,0 +1,25 @@
+<h1><%= book.title %></h1>
+
+<p><%= book.author %></p>
+
+<%= form_with model: [ book, cover ] do |form| %>
+  <%= hidden_field_tag :previous_request, request.referer %>
+  <p>
+    <%= form.label :edition %><br>
+    <%= form.text_field :edition %>
+  </p>
+  <p>
+    <%= form.label :format %><br>
+    <%= form.collection_select :format_id, Format.order(:name),:id,:name %>
+  </p>
+  <p>
+    <% if cover.image.present? %>
+      <%= image_tag(cover.image.variant(:thumb)) %>
+    <% end %>
+
+    <%= form.file_field :image %>
+  </p>
+  <p>
+  <%= form.submit %>
+</p>
+<% end %>

@@ -66,3 +66,7 @@ end
 gem "tailwindcss-rails", "~> 3.0"
 
 gem "hexapdf", "~> 1.0"
+
+gem "image_size", "~> 3.4"
+
+gem "rmagick", "~> 6.0"

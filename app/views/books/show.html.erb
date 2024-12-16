@@ -2,26 +2,10 @@
 
 <p><%= @book.author %></p>
 
-<%= render partial: "covers/covers", collection: @book.covers %>
+<%= render partial: "covers/covers", locals: {covers: @book.covers} %>
 
-<h2>Add a cover:</h2>
-<%= form_with model: [ @book, @book.covers.build ] do |form| %>
-  <p>
-    <%= form.label :edition %><br>
-    <%= form.text_field :edition %>
-  </p>
-  <p>
-    <%= form.label :format %><br>
-    <%= form.collection_select :format_id, Format.order(:name),:id,:name %>
-  </p>
-  <p>
-    <%= form.file_field :image %>
-  </p>
-  <p>
-  <%= form.submit %>
-</p>
-<% end %>
 <ul>
+  <li><%= link_to "New Cover", new_book_cover_path(@book) %></li>
   <li><%= link_to "Edit", edit_book_path(@book) %></li>
   <li><%= link_to "Destroy", book_path(@book), data: {
                   turbo_method: :delete,

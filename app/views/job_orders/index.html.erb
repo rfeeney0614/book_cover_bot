@@ -1,21 +1,4 @@
 <h1>Print Queue</h1>
 
-<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-  <%= button_to "Export", export_print_job_path, data: {turbo: :false} %>
-  <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-  <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-    <tr>
-      <th>Book</th>
-      <th>Edition </th>
-      <th>Format </th>
-      <th>Image </th>
-      <th scope="col" class="px-6 py-3">
-          Queued
-      </th>
-    </tr>
-  </thead>
-  <tbody>
-    <%= render @jobs.map{|job| job.cover} %>
-  </tbody>
- </table>
- </div>
+<%= button_to "Export", export_print_job_path, data: {turbo: :false} %>
+<%= render partial: "covers/covers", locals: {covers: @jobs.map{|job| job.cover} } %>
