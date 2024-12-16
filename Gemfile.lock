@@ -82,6 +82,7 @@ GEM
     benchmark (0.4.0)
     bigdecimal (3.1.8)
     bindex (0.8.1)
+    binpack (0.0.5)
     bootsnap (1.18.4)
       msgpack (~> 1.2)
     brakeman (6.2.2)
@@ -391,6 +392,7 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
+  binpack (~> 0.0.5)
   bootsnap
   brakeman
   capybara
