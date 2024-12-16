@@ -23,9 +23,5 @@ module BookCoverBot
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
-
-    config.after_initialize do
-      ActiveRecord::Migrator.migrate(Rails.root.join('db/migrate'))
-    end
   end
 end
