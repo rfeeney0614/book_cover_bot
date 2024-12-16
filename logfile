@@ -1,0 +1,11 @@
+2024-12-16 11:21:50.117 EST [75048] LOG:  starting PostgreSQL 14.15 (Homebrew) on x86_64-apple-darwin23.6.0, compiled by Apple clang version 16.0.0 (clang-1600.0.26.4), 64-bit
+2024-12-16 11:21:50.119 EST [75048] LOG:  listening on IPv6 address "::1", port 5432
+2024-12-16 11:21:50.120 EST [75048] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2024-12-16 11:21:50.121 EST [75048] LOG:  listening on Unix socket "/tmp/.s.PGSQL.5432"
+2024-12-16 11:21:50.125 EST [75049] LOG:  database system was shut down at 2024-12-16 11:21:21 EST
+2024-12-16 11:21:50.131 EST [75048] LOG:  database system is ready to accept connections
+2024-12-16 12:07:25.202 EST [96614] FATAL:  database "book_bot_database_dev" does not exist
+2024-12-16 12:13:57.824 EST [20844] ERROR:  syntax error at or near "." at character 31
+2024-12-16 12:13:57.824 EST [20844] STATEMENT:  CREATE DATABASE "storage/test"."sqlite3" ENCODING = 'utf8' /*application='BookCoverBot'*/
+2024-12-16 12:17:07.565 EST [30662] ERROR:  database "book_bot_database_dev" already exists
+2024-12-16 12:17:07.565 EST [30662] STATEMENT:  CREATE DATABASE "book_bot_database_dev" ENCODING = 'utf8' /*application='BookCoverBot'*/
