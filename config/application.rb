@@ -25,7 +25,7 @@ module BookCoverBot
     # config.eager_load_paths << Rails.root.join("extras")
 
     config.after_initialize do
-      ActiveRecord::Migrator.migrate(RAILS_ROOT + "/db/migrate")
+      ActiveRecord::Migrator.migrate(Rails.root.join('db/migrate'))
     end
   end
 end
