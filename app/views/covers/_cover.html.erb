@@ -23,4 +23,8 @@
     </div>
   </td>
   <td><%= link_to "Edit", edit_book_cover_path(cover.book, cover) %></td>
+  <td><%= link_to "Delete", book_cover_path(cover.book, cover), data: {
+                    turbo_method: :delete,
+                    turbo_confirm: "Are you sure?"
+                  } %></td>
 </tr>

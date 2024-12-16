@@ -32,7 +32,15 @@ class CoversController < ApplicationController
     @cover = Cover.find(params[:id])
     @cover.destroy
 
-    redirect_to root_path, status: :see_other
+    respond_to do |format|
+      format.html do
+        redirect_back fallback_location: cover_path
+      end
+
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.remove(@cover)
+      end
+    end
   end
 
   def add_job
