@@ -72,3 +72,5 @@ gem "image_size", "~> 3.4"
 gem "rmagick", "~> 6.0"
 
 gem "binpack", "~> 0.0.5"
+
+gem "azure-blob", "~> 0.5.4"

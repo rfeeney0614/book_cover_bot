@@ -75,6 +75,8 @@ GEM
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
     ast (2.4.2)
+    azure-blob (0.5.4)
+      rexml
     base64 (0.2.0)
     bcrypt_pbkdf (1.1.1)
     bcrypt_pbkdf (1.1.1-arm64-darwin)
@@ -371,6 +373,7 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
+  azure-blob (~> 0.5.4)
   binpack (~> 0.0.5)
   bootsnap
   brakeman
