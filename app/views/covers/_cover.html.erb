@@ -1,5 +1,8 @@
 <tr id="<%= dom_id cover %>" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
   <td scope="col" class="px-6 py-3"><%= link_to cover.book.title, book_path(cover.book) %></td>
+  <% if show_page_count %>
+  <td scope="col" class="px-6 py-3"><%= cover.book.page_count %></td>
+  <% end %>
   <td scope="col" class="px-4 py-3"><%= cover.edition%></td>
   <td scope="col" class="px-4 py-3"><%= link_to cover.format.name, format_path(cover.format) %></td>
   <td scope="col" class="px-4 py-3">

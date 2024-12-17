@@ -7,7 +7,7 @@
 <h2>Note:</h2>
 <p><%= @book.note %></p>
 <br>
-<%= render partial: "covers/covers", locals: {covers: @book.covers} %>
+<%= render partial: "covers/covers", locals: {covers: @book.covers, show_page_count: false} %>
 
 <ul>
   <li><%= link_to "New Cover", new_book_cover_path(@book) %></li>

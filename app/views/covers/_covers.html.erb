@@ -3,6 +3,9 @@
   <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
     <tr>
       <th>Book</th>
+      <% if show_page_count %>
+      <th>Page Count</td>
+      <% end %>
       <th>Edition </th>
       <th>Format </th>
       <th>Image </th>
@@ -12,7 +15,7 @@
     </tr>
   </thead>
   <tbody>
-    <%= render covers %>
+    <%= render covers, show_page_count: show_page_count %>
   </tbody>
  </table>
  </div>
