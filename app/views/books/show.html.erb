@@ -1,7 +1,12 @@
 <h1><%= @book.title %></h1>
-
-<p><%= @book.author %></p>
-
+<br>
+<p>Author: <%= @book.author %></p>
+<br>
+<p>Page Count: <%= @book.page_count %></p>
+<br>
+<h2>Note:</h2>
+<p><%= @book.note %></p>
+<br>
 <%= render partial: "covers/covers", locals: {covers: @book.covers} %>
 
 <ul>

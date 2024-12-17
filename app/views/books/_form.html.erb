@@ -6,12 +6,22 @@
       <div><%= message %></div>
     <% end %>
   </div>
-
+  <br>
   <div>
     <%= form.label :author %><br>
     <%= form.text_field :author %>
   </div>
-
+  <br>
+  <div>
+    <%= form.label :page_count %><br>
+    <%= form.number_field :page_count %>
+  </div>
+  <br>
+  <div>
+    <%= form.label :note %><br>
+    <%= form.text_area :note %>
+  </div>
+  <br>
   <div>
     <%= form.submit %>
   </div>
