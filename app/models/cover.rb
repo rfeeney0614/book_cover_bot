@@ -3,7 +3,7 @@ class Cover < ApplicationRecord
     attachable.variant :thumb, resize_to_limit: [100, 100]
   end
   belongs_to :book
-  belongs_to :format
+  belongs_to :format, optional: true
   has_one :job_order, dependent: :destroy
 
   def job_count

@@ -9,3 +9,5 @@
 2024-12-16 12:13:57.824 EST [20844] STATEMENT:  CREATE DATABASE "storage/test"."sqlite3" ENCODING = 'utf8' /*application='BookCoverBot'*/
 2024-12-16 12:17:07.565 EST [30662] ERROR:  database "book_bot_database_dev" already exists
 2024-12-16 12:17:07.565 EST [30662] STATEMENT:  CREATE DATABASE "book_bot_database_dev" ENCODING = 'utf8' /*application='BookCoverBot'*/
+2024-12-17 13:16:45.270 EST [26025] ERROR:  column "format" of relation "covers" does not exist
+2024-12-17 13:16:45.270 EST [26025] STATEMENT:  ALTER TABLE "covers" ALTER COLUMN "format" DROP NOT NULL /*application='BookCoverBot'*/

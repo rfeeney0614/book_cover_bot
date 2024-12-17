@@ -4,9 +4,20 @@
   <td scope="col" class="px-6 py-3"><%= cover.book.page_count %></td>
   <% end %>
   <td scope="col" class="px-4 py-3"><%= cover.edition%></td>
-  <td scope="col" class="px-4 py-3"><%= link_to cover.format.name, format_path(cover.format) %></td>
+
   <td scope="col" class="px-4 py-3">
-    <%= link_to image_tag(cover.image.variant(:thumb)), rails_blob_path(cover.image, disposition: 'attachment') %>
+    <%=
+      if cover.format.present?
+        link_to cover.format.name, format_path(cover.format)
+      end
+    %>
+  </td>
+  <td scope="col" class="px-4 py-3">
+    <%=
+      if cover.image.present?
+        link_to image_tag(cover.image.variant(:thumb)), rails_blob_path(cover.image, disposition: 'attachment')
+      end
+    %>
   </td>
   <td class="px-6 py-4">
     <div class="flex items-center">

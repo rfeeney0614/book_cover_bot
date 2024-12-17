@@ -74,3 +74,5 @@ gem "rmagick", "~> 6.0"
 gem "binpack", "~> 0.0.5"
 
 gem "azure-blob", "~> 0.5.4"
+
+gem "roo", "~> 2.10"
