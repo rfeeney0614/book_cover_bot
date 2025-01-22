@@ -2,7 +2,7 @@
 <br>
 <%= form_with model: [ book, cover ] do |form| %>
   <%= hidden_field_tag :previous_request, request.referer %>
-  <div class="grid grid-rows-8 grid-flow-col gap-4">
+  <div class="grid grid-rows-4 grid-flow-col gap-4">
     <div>
       <%= form.label :edition, class: "font-bold" %><br>
       <%= form.text_field :edition, class: "border-8" %>
