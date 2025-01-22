@@ -9,7 +9,7 @@
     </div>
     <div>
       <%= form.label :format, class: "font-bold" %><br>
-      <%= form.collection_select :format_id, Format.order(:name),:id,:name, {:selected => :format_id || Format.default.id}, class:"inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
+      <%= form.collection_select :format_id, Format.order(:name),:id,:name, {:selected => form.object.format_id || Format.default.id}, class:"inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" %>
     </div>
     <div>
       <% if cover.image.present? %>
