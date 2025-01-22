@@ -1,28 +1,30 @@
 <%= form_with model: book do |form| %>
-  <div>
-    <%= form.label :title %><br>
-    <%= form.text_field :title %>
-    <% book.errors.full_messages_for(:title).each do |message| %>
-      <div><%= message %></div>
-    <% end %>
-  </div>
-  <br>
-  <div>
-    <%= form.label :author %><br>
-    <%= form.text_field :author %>
-  </div>
-  <br>
-  <div>
-    <%= form.label :page_count %><br>
-    <%= form.number_field :page_count %>
-  </div>
-  <br>
-  <div>
-    <%= form.label :note %><br>
-    <%= form.text_area :note %>
-  </div>
-  <br>
-  <div>
-    <%= form.submit %>
+  <div class="grid grid-rows-4 grid-flow-col gap-4">
+    <div>
+      <%= form.label :title, class: "font-bold" %><br>
+      <%= form.text_field :title, class: "border-8" %>
+      <% book.errors.full_messages_for(:title).each do |message| %>
+        <div><%= message %></div>
+      <% end %>
+    </div>
+    <br>
+    <div>
+      <%= form.label :author, class: "font-bold" %><br>
+      <%= form.text_field :author, class: "border-8" %>
+    </div>
+    <br>
+    <div>
+      <%= form.label :page_count, class: "font-bold" %><br>
+      <%= form.number_field :page_count, class: "border-8" %>
+    </div>
+    <br>
+    <div>
+      <%= form.label :note, class: "font-bold" %><br>
+      <%= form.text_area :note, class: "border-8" %>
+    </div>
+    <br>
+    <div>
+      <%= form.submit class:"text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" %>
+    </div>
   </div>
 <% end %>
