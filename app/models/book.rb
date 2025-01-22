@@ -4,9 +4,9 @@ class Book < ApplicationRecord
 
   def self.search(query)
     if query
-      key = "%#{query}%"
+      key = "%#{query.downcase}%"
 
-      Book.where('title LIKE :search OR author LIKE :search', search: key).order(:title)
+      Book.where('lower(title) LIKE :search OR lower(author) LIKE :search', search: key).order(:title)
       # Book.where(Book.arel_table[:title].matches("%#{query}%"))
     else
       Book.all
