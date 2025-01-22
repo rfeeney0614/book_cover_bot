@@ -1,5 +1,5 @@
 class Format < ApplicationRecord
   def self.default
-    Format.find('name == Minibook')
+    Format.where('name == Minibook')
   end
 end
