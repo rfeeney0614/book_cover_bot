@@ -4,7 +4,10 @@ class Book < ApplicationRecord
 
   def self.search(query)
     if query
-      Book.where(Book.arel_table[:title].matches("%#{query}%"))
+      key = "%#{query}%"
+
+      Book.where('title LIKE :search OR author LIKE :search', search: key).order(:title)
+      # Book.where(Book.arel_table[:title].matches("%#{query}%"))
     else
       Book.all
     end
