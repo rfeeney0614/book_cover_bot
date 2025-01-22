@@ -25,6 +25,21 @@ class FormatsController < ApplicationController
     end
   end
 
+  def destroy
+    @format = Format.find(params[:id])
+    @format.destroy
+
+    respond_to do |response_format|
+      response_format.html do
+        redirect_back fallback_location: format_path
+      end
+
+      response_format.turbo_stream do
+        render turbo_stream: turbo_stream.remove(@format)
+      end
+    end
+  end
+
   def create
     @format = Format.new(format_params)
 
