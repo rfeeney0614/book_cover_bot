@@ -46,6 +46,7 @@ class CoversController < ApplicationController
   def add_job
     @cover = Cover.find(params[:id])
     @cover.add_job
+    @show_page_count = params[:show_page_count]
 
     respond_to do |format|
       format.html do
@@ -56,7 +57,7 @@ class CoversController < ApplicationController
         render turbo_stream: turbo_stream.replace(
           @cover, # translates to same identifier as dom_id(invoice)
           partial: 'covers/cover',
-          locals: { cover: @cover },
+          locals: { cover: @cover, show_page_count: @show_page_count },
         )
       end
     end
@@ -65,6 +66,7 @@ class CoversController < ApplicationController
   def remove_job
     @cover = Cover.find(params[:id])
     @cover.remove_job
+    @show_page_count = params[:show_page_count]
 
     respond_to do |format|
       format.html do
@@ -75,7 +77,7 @@ class CoversController < ApplicationController
         render turbo_stream: turbo_stream.replace(
           @cover, # translates to same identifier as dom_id(invoice)
           partial: 'covers/cover',
-          locals: { cover: @cover },
+          locals: { cover: @cover, show_page_count: @show_page_count },
         )
       end
     end
