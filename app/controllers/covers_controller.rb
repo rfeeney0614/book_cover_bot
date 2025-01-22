@@ -1,6 +1,9 @@
 class CoversController < ApplicationController
   def index
-    @covers = Cover.search(params[:search])
+    page = params[:page].to_i || 1
+    @per_page = 10
+    offset = (page - 1) * @per_page
+    @covers = Cover.search(params[:search]).limit(@per_page).offset(offset)
   end
 
   def new
