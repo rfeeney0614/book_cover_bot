@@ -1,6 +1,9 @@
 class BooksController < ApplicationController
   def index
-    @books = Book.search(params[:search])
+    page = [params[:page].to_i, 1].max
+    @per_page = 10
+    offset = (page - 1) * @per_page
+    @books = Book.search(params[:search]).limit(@per_page).offset(offset)
   end
 
   def show
