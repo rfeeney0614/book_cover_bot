@@ -13,9 +13,7 @@ class Cover < ApplicationRecord
 
   def self.search(query)
     if query
-      joins(:book).where(
-         Book.arel_table[:title].matches("%#{query}%")
-      )
+      Book.search(query).map { |b| b.covers }.flatten
     else
       all
     end
