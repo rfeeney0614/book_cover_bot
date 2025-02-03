@@ -11,4 +11,8 @@ class JobOrdersController < ApplicationController
       type: 'application/pdf'
     )
   end
+
+  def clear
+    redirect_back fallback_location: print_queue_path
+  end
 end

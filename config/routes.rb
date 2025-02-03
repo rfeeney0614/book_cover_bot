@@ -17,6 +17,7 @@ Rails.application.routes.draw do
   patch "/covers/:id/remove_job", to: "covers#remove_job", as: :remove_from_job_cover
   get "/print_queue", to: "job_orders#index"
   post "/print_queue/export", to: "job_orders#export", as: :export_print_job
+  delete "/print_queue", to: "job_orders#clear", as: :clear_print_jobs
   resources :formats
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
