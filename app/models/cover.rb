@@ -13,7 +13,7 @@ class Cover < ApplicationRecord
 
   def self.search(query)
     if query
-      Book.search(query).map { |b| b.covers }.flatten
+      joins(:book).where("book.title like %?%", query)
     else
       all
     end
