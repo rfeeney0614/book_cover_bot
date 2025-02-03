@@ -13,6 +13,7 @@ class JobOrdersController < ApplicationController
   end
 
   def clear
+    JobOrder.delete_all
     redirect_back fallback_location: print_queue_path
   end
 end
