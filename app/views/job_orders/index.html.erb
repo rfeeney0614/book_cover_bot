@@ -43,7 +43,7 @@ function processJob(jobId) {
   })
   .then(data => {
     if(data.finished == true) {
-      window.location('print_queue/export/' + jobId + '/download');
+      window.location.replace('print_queue/export/' + jobId + '/download');
     }
     else {
       setTimeout(function() { processJob(jobId); }, 2000);

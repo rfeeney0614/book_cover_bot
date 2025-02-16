@@ -1,3 +1,3 @@
 web: bundle exec rails db:migrate
-web: bundle exec rake solid_queue:start -d -L ./log/solid.log
+worker: bundle exec rake solid_queue:start
 web: bundle exec puma -C config/puma.rb
