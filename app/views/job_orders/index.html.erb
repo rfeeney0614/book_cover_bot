@@ -11,7 +11,7 @@
 <br>
 <script>
 function exportPrint() {
-  fetch('/export', {method: "POST"})
+  fetch('print_queue/export', {method: "POST"})
   .then(response => {
     if (!response.ok) {
       throw new Error('Network response was not ok');
@@ -28,7 +28,7 @@ function exportPrint() {
 }
 
 function processJob(jobId) {
-  fetch('export/' + jobId + '/status')
+  fetch('print_queue/export/' + jobId + '/status')
   .then(response => {
     if (!response.ok) {
       throw new Error('Network response was not ok');
@@ -41,7 +41,7 @@ function processJob(jobId) {
     }
     else {
       alert("Job done!");
-      window.location('export/' + jobId + '/download');
+      window.location('print_queue/export/' + jobId + '/download');
     }
   })
   .catch(error => {
