@@ -25,7 +25,7 @@ function exportPrint() {
     return response.json();
   })
   .then(data => {
-    const jobID = data.main.jobId;
+    const jobID = data.jobId;
     alert("Hello World")
   })
   .catch(error => {
