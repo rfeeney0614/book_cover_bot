@@ -26,7 +26,7 @@ function exportPrint() {
   })
   .then(data => {
     const jobID = data.jobId;
-    alert("Hello World")
+    processJob(jobID);
   })
   .catch(error => {
     console.error('Error:', error);
