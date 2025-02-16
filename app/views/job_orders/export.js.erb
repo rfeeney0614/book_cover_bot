@@ -1,0 +1,24 @@
+Rails.ajax({
+  url: export_print_job_path,
+  success: function(result) {
+    processExport(json.jobId);
+  },
+  error: function(req, statusText, err) {
+    alert("Error processing job.");
+  }
+});
+
+function processExport(jobId) {
+  Rails.ajax({
+    url: print_export_status_path(jobId),
+    success: function(result) {
+      alert("Job done!");
+      window.location(print_export_download_path(jobId));
+    },
+    error: function(req, statusText, err) {
+      if(req.status == 202) {
+        setTimeout(function() { processExport(jobId); }, 2000); }
+      else { alert("Error processing job."); }
+    }
+  });
+}
