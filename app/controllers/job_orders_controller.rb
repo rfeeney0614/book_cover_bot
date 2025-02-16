@@ -8,7 +8,7 @@ class JobOrdersController < ApplicationController
     @ex = PrintExport.create
     @ex.job_orders.append(JobOrder.all)
     @ex.save
-    CompileExportJob.perform_later(ex.id)
+    CompileExportJob.perform_later(@ex.id)
     respond_to do |format|
        format.json { render :json => {:jobId => @ex.id} }
     end
