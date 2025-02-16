@@ -14,6 +14,6 @@ class PrintExportsController < ApplicationController
 
   def download
     @export = PrintExport.find(params[:id])
-    redirect_to @export.pdf.service_url
+    redirect_to rails_blob_path(@export.pdf, disposition: "attachment", only_path: true)
   end
 end
