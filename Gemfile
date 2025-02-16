@@ -80,3 +80,5 @@ gem "roo", "~> 2.10"
 gem "solid_queue", "~> 1.1"
 
 gem "jquery-rails", "~> 4.6"
+
+gem "mission_control-jobs", "~> 1.0"
