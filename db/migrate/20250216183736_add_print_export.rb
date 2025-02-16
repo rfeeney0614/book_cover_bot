@@ -1,7 +1,7 @@
 class AddPrintExport < ActiveRecord::Migration[8.0]
   def change
     create_table :print_exports do |t|
-      t.bool :finished
+      t.boolean :finished
 
       t.timestamps
     end
