@@ -42,12 +42,11 @@ function processJob(jobId) {
     return response.json();
   })
   .then(data => {
-    if(req.status == 202) {
-      setTimeout(function() { processJob(jobId); }, 2000);
+    if(data.finished == true) {
+      window.location('print_queue/export/' + jobId + '/download');
     }
     else {
-      alert("Job done!");
-      window.location('print_queue/export/' + jobId + '/download');
+      setTimeout(function() { processJob(jobId); }, 2000);
     }
   })
   .catch(error => {

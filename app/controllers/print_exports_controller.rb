@@ -5,11 +5,7 @@ class PrintExportsController < ApplicationController
 
   def status
     @export = PrintExport.find(params[:id])
-    if @export.finished
-      render :status => :ok
-    else
-      render :status => :accepted
-    end
+    render :json => {:finished => @export.finished}
   end
 
   def download
