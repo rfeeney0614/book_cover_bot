@@ -5,6 +5,8 @@ class AddPrintExport < ActiveRecord::Migration[8.0]
 
       t.timestamps
     end
-    add_column :job_orders, :print_export_id, :integer, references: :print_exports
+    change_table :job_orders do |t|
+      t.references :print_export, index: true
+    end
   end
 end
