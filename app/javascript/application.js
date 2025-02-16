@@ -2,3 +2,5 @@
 import "@hotwired/turbo-rails"
 import "controllers"
 import 'flowbite';
+require `jquery`
+require `jquery_ujs`

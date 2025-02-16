@@ -78,3 +78,5 @@ gem "azure-blob", "~> 0.5.4"
 gem "roo", "~> 2.10"
 
 gem "solid_queue", "~> 1.1"
+
+gem "jquery-rails", "~> 4.6"
