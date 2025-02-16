@@ -1,12 +1,4 @@
-Rails.ajax({
-  url: export_print_job_path,
-  success: function(result) {
-    processExport(json.jobId);
-  },
-  error: function(req, statusText, err) {
-    alert("Error processing job.");
-  }
-});
+alert("<%= @export.id %>");
 
 function processExport(jobId) {
   Rails.ajax({

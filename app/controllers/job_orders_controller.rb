@@ -4,10 +4,13 @@ class JobOrdersController < ApplicationController
   end
 
   def export
-    export = PrintExport.create
-    export.job_orders.add(JobOrder.all)
+    @export = PrintExport.create
+    @export.job_orders.add(JobOrder.all)
     CompileExportJob.perform_later(export.id)
-    render :json => {:jobId => export.id}
+    respond_to do |format|
+       format.json { render :json => {:jobId => @export.id} }
+       format.js   { render :layout => false }
+    end
   end
 
   def clear
