@@ -1,11 +1,51 @@
 <h1 class="text-3xl font-bold underline">Print Queue</h1>
 <br>
 <div class="h-40 w-1/2 grid grid-cols-2 gap-1 content-evenly">
-<%= link_to "Export", export_print_job_path, method: :post, data: {turbo: :false}, class:"text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800", :remote => true %>
+<%= button_to "Export", export_print_job_path, data: {turbo: :false}, class:"text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" %>
 <%= link_to "Clear Queue", clear_print_jobs_path, data: {
                 turbo_method: :delete,
                 turbo_confirm: "Are you sure?"
               }, class:"text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" %>
 </div>
 <br>
+<script>
+function exportPrint() {
+  fetch(export_print_job_path)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  })
+  .then(data => {
+    const jobID = data.main.jobId;
+    processJob(jobID);
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
+
+function processJob(jobId) {
+  fetch(print_export_status_path(jobId))
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  })
+  .then(data => {
+    if(req.status == 202) {
+      setTimeout(function() { processExport(jobId); }, 2000);
+    }
+    else {
+      alert("Job done!");
+      window.location(print_export_download_path(jobId));
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
+</script>
 <%= render partial: "covers/covers", locals: {covers: @jobs.map{|job| job.cover}, show_page_count: true } %>

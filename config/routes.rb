@@ -16,7 +16,7 @@ Rails.application.routes.draw do
   patch "/covers/:id/add_job", to: "covers#add_job", as: :add_to_job_cover
   patch "/covers/:id/remove_job", to: "covers#remove_job", as: :remove_from_job_cover
   get "/print_queue", to: "job_orders#index"
-  get "/print_queue/export", to: "job_orders#export", as: :export_print_job
+  post "/print_queue/export", to: "job_orders#export", as: :export_print_job
   delete "/print_queue", to: "job_orders#clear", as: :clear_print_jobs
   resources :formats
   get "/print_queue/export/:id/status", to: "print_exports#status", as: :print_export_status
