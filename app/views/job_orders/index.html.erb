@@ -43,7 +43,7 @@ function processJob(jobId) {
   })
   .then(data => {
     if(req.status == 202) {
-      setTimeout(function() { processExport(jobId); }, 2000);
+      setTimeout(function() { processJob(jobId); }, 2000);
     }
     else {
       alert("Job done!");
