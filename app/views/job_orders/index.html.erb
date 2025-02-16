@@ -16,7 +16,7 @@ function exportPrint() {
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(data)
+    body: ""
   })
   .then(response => {
     if (!response.ok) {
