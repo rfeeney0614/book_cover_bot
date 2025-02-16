@@ -2,7 +2,7 @@ require 'hexapdf'
 require 'image_size'
 require 'rmagick'
 class PrintJobCompiler
-  def self.generate
+  def self.generate(jobs)
     # Image only added to PDF once though used multiple times
     # canvas = doc.pages.add.canvas
     # canvas.image(file, at: [100, 500]) # auto-size based on image size
@@ -17,7 +17,6 @@ class PrintJobCompiler
     images_to_pack = []
 
     width, height = 0,0
-    jobs = JobOrder.all
     jobs.each do |job|
       filename = job.cover.image.blob.filename.to_s
       create_tmp_folder_and_store_documents(job.cover.image, tmp_user_folder, filename)

@@ -4,12 +4,10 @@ class JobOrdersController < ApplicationController
   end
 
   def export
-    io = PrintJobCompiler.generate
-    send_data(
-      io.read,
-      filename: "book_cover_prints_#{DateTime.now}.pdf",
-      type: 'application/pdf'
-    )
+    export = PrintExport.create
+    export.job_orders.add(JobOrder.all)
+    CompileExportJob.perform_later(export.id)
+    render :json => {:jobId => export.id}
   end
 
   def clear

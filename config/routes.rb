@@ -19,6 +19,8 @@ Rails.application.routes.draw do
   post "/print_queue/export", to: "job_orders#export", as: :export_print_job
   delete "/print_queue", to: "job_orders#clear", as: :clear_print_jobs
   resources :formats
+  get "/print_queue/export/:id/status", to: "print_exports#status", as: :print_export_status
+  get "/print_queue/export/:id/download", to: "print_exports#download", as: :print_export_download
   # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
