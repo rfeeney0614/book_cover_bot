@@ -11,7 +11,13 @@
 <br>
 <script>
 function exportPrint() {
-  fetch('print_queue/export', {method: "POST"})
+  fetch('print_queue/export', {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  })
   .then(response => {
     if (!response.ok) {
       throw new Error('Network response was not ok');
