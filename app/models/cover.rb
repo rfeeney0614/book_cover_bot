@@ -15,7 +15,7 @@ class Cover < ApplicationRecord
     if query
       key = "%#{query.downcase}%"
 
-      joins(:book).where("lower(books.title) LIKE :search OR lower(books.author) LIKE :search", search: key)
+      joins(:book).where("lower(books.title) LIKE :search OR lower(books.author) LIKE :search OR lower(books.series) LIKE :search", search: key)
     else
       all
     end
