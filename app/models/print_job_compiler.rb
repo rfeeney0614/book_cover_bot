@@ -33,7 +33,7 @@ class PrintJobCompiler
 
     # Add the page created above as second page
     #
-    HexaPDF::Composer.create('images.pdf', margin: 5) do |composer|
+    HexaPDF::Composer.create('images.pdf', page_size: :Letter, margin: 5) do |composer|
       bins.each_with_index do |bin, index|
         bin.items.sort_by { |b| [b[2], b[1]] }.each do |item|
           image = item[0]
