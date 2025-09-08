@@ -26,14 +26,14 @@ class PrintJobCompiler
       scale = job.cover.format.height * 72 / image_size.height
       width, height = image_size.width * scale, image_size.height * scale
       job.quantity.times do |i|
-        images_to_pack << Binpack::Item.new(file, width + 1, height + 1)
+        images_to_pack << Binpack::Item.new(file, width + 2, height + 2)
       end
     end
-    bins = Binpack::Bin.pack(images_to_pack, [], Binpack::Bin.new(595, 842, 10))
+    bins = Binpack::Bin.pack(images_to_pack, [], Binpack::Bin.new(612, 792, 10))
 
     # Add the page created above as second page
     #
-    HexaPDF::Composer.create('images.pdf', page_size: :Letter, margin: 5) do |composer|
+    HexaPDF::Composer.create('images.pdf', page_size: :Letter, margin: 10) do |composer|
       bins.each_with_index do |bin, index|
         bin.items.sort_by { |b| [b[2], b[1]] }.each do |item|
           image = item[0]
@@ -41,7 +41,7 @@ class PrintJobCompiler
           if image.rotated
             image_file = get_rotated_image(tmp_user_folder, image_file)
           end
-          composer.image(image_file, height: image.height - 1, width: image.width - 1, position: :float, margin: [1,1,1,1])
+          composer.image(image_file, height: image.height - 2, width: image.width - 2, position: :float, margin: [2,2,2,2])
         end
       end
       composer.document.write(io)
