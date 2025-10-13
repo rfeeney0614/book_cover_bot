@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:17 # Use a specific PostgreSQL version
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: book_bot # Or your desired database name
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Persistent data storage
+    ports:
+      - "5432:5432" # Expose PostgreSQL port to host
+
+  web:
+    build: . # Build the image from the current directory (where Dockerfile is)
+    command: bundle exec rails s -p 3000 -b '0.0.0.0'
+    volumes:
+      - .:/app # Mount the current directory into the container for live changes
+      - ./config/master.key:/rails/config/master.key
+    ports:
+      - "3000:3000" # Expose Rails port to host
+    depends_on:
+      - db # Ensure database starts before Rails
+    environment:
+      DATABASE_URL: postgres://postgres:password@db:5432/book_bot # Connect to the 'db' service
+
+volumes:
+  postgres_data: # Define the named volume for PostgreSQL data

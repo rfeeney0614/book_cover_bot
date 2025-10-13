@@ -10,4 +10,4 @@ microsoft:
   service: AzureBlob
   storage_account_name: bookcoverbot
   storage_access_key: <%= Rails.application.credentials.dig(:azure_storage, :storage_access_key) %>
-  container: cover-images-<%= Rails.env %>
+  container: cover-images-production
