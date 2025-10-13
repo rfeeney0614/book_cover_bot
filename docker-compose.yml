@@ -22,5 +22,13 @@ services:
     environment:
       DATABASE_URL: postgres://postgres:password@db:5432/book_bot # Connect to the 'db' service
 
+  solid_queue_worker:
+    build: . # Or a specific image if you have a separate worker image
+    command: bundle exec rake solid_queue:start # Or a custom script that starts the Solid Queue worker
+    depends_on:
+      - db # Solid Queue relies on the database
+    environment:
+      RAILS_ENV: production # Or production, depending on your setup
+      DATABASE_URL: postgres://postgres:password@db:5432/book_bot # Connect to the 'db' service
 volumes:
   postgres_data: # Define the named volume for PostgreSQL data
