@@ -71,8 +71,5 @@ RUN groupadd --system --gid 1000 rails && \
     chown -R rails:rails db log storage tmp
 USER 1000:1000
 
-# Expose the port your Rails app runs on (e.g., 3000)
-EXPOSE 3000
-
 # Command to run the Rails server
 CMD ["rails", "server", "-b", "0.0.0.0"]
