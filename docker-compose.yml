@@ -1,4 +1,4 @@
-version: "3.9"
+version: "2.4"
 
 services:
   db:
@@ -15,9 +15,6 @@ services:
   web:
     build: . # Build the image from the current directory (where Dockerfile is)
     command: bundle exec rails s -p 3000 -b '0.0.0.0'
-    volumes:
-      - .:/app # Mount the current directory into the container for live changes
-      - ./config/master.key:/rails/config/master.key
     ports:
       - "3000:3000" # Expose Rails port to host
     depends_on:
