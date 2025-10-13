@@ -16,7 +16,7 @@ services:
     build: . # Build the image from the current directory (where Dockerfile is)
     command: bundle exec rails s -p 3000 -b '0.0.0.0'
     ports:
-      - "3000:3000" # Expose Rails port to host
+      - "80:80" # Expose Rails port to host
     depends_on:
       - db # Ensure database starts before Rails
     environment:
