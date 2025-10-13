@@ -9,6 +9,7 @@ services:
       POSTGRES_DB: book_bot # Or your desired database name
     volumes:
       - postgres_data:/var/lib/postgresql/data # Persistent data storage
+      - active_storage_data:/app/storage
     ports:
       - "5432:5432" # Expose PostgreSQL port to host
 
@@ -32,3 +33,4 @@ services:
       DATABASE_URL: postgres://postgres:password@db:5432/book_bot # Connect to the 'db' service
 volumes:
   postgres_data: # Define the named volume for PostgreSQL data
+  active_storage_data:
