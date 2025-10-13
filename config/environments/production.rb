@@ -26,8 +26,9 @@ Rails.application.configure do
   config.active_storage.variant_processor = :mini_magick
 
   # Assume all access to the app is happening through a SSL-terminating reverse proxy.
-  config.assume_ssl = true
+  config.assume_ssl = false
 
+  config.hosts.clear
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
   # config.force_ssl = true
 
