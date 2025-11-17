@@ -3,6 +3,9 @@
 </h1>
 <%= form_tag covers_path, method: :get do %>
   <div class = "flex justify-end">
+    <%= check_box_tag "unfinished", "true", params[:unfinished] == "true", onchange: "this.form.submit();" %>
+    <%= label_tag "status", "Unfinished" %><br>
+
     <%= text_field_tag :search, params[:search], class: "border-8" %>
     <%= submit_tag "Search", class:"text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" %>
   </div>

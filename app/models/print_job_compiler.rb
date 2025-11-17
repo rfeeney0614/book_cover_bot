@@ -18,7 +18,9 @@ class PrintJobCompiler
 
     width, height = 0,0
     jobs.each do |job|
-      filename = job.cover.image.blob.filename.to_s
+      filename = job.cover&.image&.blob&.filename&.to_s
+      next if filename.nil?
+      
       create_tmp_folder_and_store_documents(job.cover.image, tmp_user_folder, filename)
       file = File.join(tmp_user_folder, filename)
       save_rotated_image(tmp_user_folder, filename)

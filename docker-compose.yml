@@ -9,7 +9,6 @@ services:
       POSTGRES_DB: book_bot # Or your desired database name
     volumes:
       - postgres_data:/var/lib/postgresql/data # Persistent data storage
-      - active_storage_data:/app/storage
     ports:
       - "5432:5432" # Expose PostgreSQL port to host
 
@@ -17,11 +16,15 @@ services:
     build: . # Build the image from the current directory (where Dockerfile is)
     command: bundle exec rails s -b '0.0.0.0'
     ports:
-      - "80:3000" # Expose Rails port to host
+      - "3000:3000" # Expose Rails port to host
     depends_on:
       - db # Ensure database starts before Rails
     environment:
-      DATABASE_URL: postgres://postgres:password@db:5432/book_bot # Connect to the 'db' service
+      - DATABASE_URL= postgres://postgres:password@db:5432/book_bot # Connect to the 'db' service
+      - RAILS_MASTER_KEY=${RAILS_MASTER_KEY}
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+    volumes:
+      - active_storage_data:/rails/storage
 
   solid_queue_worker:
     build: . # Or a specific image if you have a separate worker image
@@ -31,6 +34,8 @@ services:
     environment:
       RAILS_ENV: production # Or production, depending on your setup
       DATABASE_URL: postgres://postgres:password@db:5432/book_bot # Connect to the 'db' service
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
 volumes:
   postgres_data: # Define the named volume for PostgreSQL data
   active_storage_data:

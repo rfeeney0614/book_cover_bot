@@ -82,3 +82,5 @@ gem "solid_queue", "~> 1.1"
 gem "jquery-rails", "~> 4.6"
 
 gem "mission_control-jobs", "~> 1.0"
+
+gem "ruby-progressbar", "~> 1.13"
