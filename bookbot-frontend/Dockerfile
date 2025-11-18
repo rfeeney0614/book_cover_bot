@@ -8,7 +8,11 @@ ENV PATH /app/node_modules/.bin:$PATH
 
 # Install dependencies first (leveraging Docker cache)
 COPY package.json package-lock.json ./
-RUN npm ci --silent
+# Use a recent npm 11.x to match the host lockfile format and avoid lockfile-parsing
+# issues that can appear across npm major versions.
+RUN npm install -g npm@11.6.2
+# Show npm output during build to aid debugging in CI/container environments
+RUN npm ci
 
 # Copy app source
 COPY . .
