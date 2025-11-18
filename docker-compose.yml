@@ -13,7 +13,7 @@ services:
       - "5432:5432" # Expose PostgreSQL port to host
 
   web:
-    build: . # Build the image from the current directory (where Dockerfile is)
+    build: . # Build the image from the current directory (Dockerfile in repo root)
     command: bundle exec rails s -b '0.0.0.0'
     ports:
       - "3000:3000" # Expose Rails port to host
@@ -25,10 +25,11 @@ services:
       - SECRET_KEY_BASE=${SECRET_KEY_BASE}
     volumes:
       - active_storage_data:/rails/storage
+      - ./bookbot-api:/rails # Mount the Rails app directory into the container at /rails
 
   solid_queue_worker:
-    build: . # Or a specific image if you have a separate worker image
-    command: bundle exec rake solid_queue:start # Or a custom script that starts the Solid Queue worker
+    build: . # Build still uses the Dockerfile in repo root; Dockerfile will copy from bookbot-api/
+    command: bundle exec rake solid_queue:start # Starts the Solid Queue worker
     depends_on:
       - db # Solid Queue relies on the database
     environment:

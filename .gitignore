@@ -11,8 +11,8 @@
 /.env*
 
 # Ignore all logfiles and tempfiles.
-/log/*
-/tmp/*
+ /bookbot-api/log/*
+ /bookbot-api/tmp/*
 !/log/.keep
 !/tmp/.keep
 
@@ -22,16 +22,17 @@
 !/tmp/pids/.keep
 
 # Ignore storage (uploaded files in development and any SQLite databases).
-/storage/*
+ /bookbot-api/storage/*
 !/storage/.keep
 /tmp/storage/*
 !/tmp/storage/
 !/tmp/storage/.keep
 
-/public/assets
+ /bookbot-api/public/assets
 
 # Ignore master key for decrypting credentials and more.
-/config/master.key
+# The Rails app lives in bookbot-api/ now
+/bookbot-api/config/master.key
 
-/app/assets/builds/*
-!/app/assets/builds/.keep
+/bookbot-api/app/assets/builds/*
+!/bookbot-api/app/assets/builds/.keep

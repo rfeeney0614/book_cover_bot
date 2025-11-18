@@ -1,2 +1,2 @@
-web: bin/rails server
-css: bin/rails tailwindcss:watch
+web: cd bookbot-api && bin/rails server
+css: cd bookbot-api && bin/rails tailwindcss:watch
