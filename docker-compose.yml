@@ -37,6 +37,21 @@ services:
       DATABASE_URL: postgres://postgres:password@db:5432/book_bot # Connect to the 'db' service
       RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
       SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+
+  frontend:
+    build:
+      context: ./bookbot-frontend
+      dockerfile: Dockerfile
+    command: npm start
+    environment:
+      - CHOKIDAR_USEPOLLING=true # helpful in some Docker setups for file watching
+    ports:
+      - "3001:3000" # Map container 3000 to host 3001 to avoid conflict with Rails on 3000
+    volumes:
+      - ./bookbot-frontend:/app
+      - /app/node_modules
+    depends_on:
+      - web
 volumes:
   postgres_data: # Define the named volume for PostgreSQL data
   active_storage_data:
