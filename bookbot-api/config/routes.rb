@@ -16,6 +16,15 @@ Rails.application.routes.draw do
 
   namespace :api do
     resources :books, only: [:index, :show, :create, :update]
+    resources :covers, only: [:index, :show, :create, :update, :destroy]
+    resources :formats, only: [:index, :show, :create, :update, :destroy]
+    resources :job_orders, only: [:index, :show, :create, :destroy]
+    resources :print_exports, only: [:index, :show, :create, :update, :destroy] do
+      member do
+        get :status
+        get :download
+      end
+    end
   end
 
   get "/covers", to: "covers#index", as: :covers
