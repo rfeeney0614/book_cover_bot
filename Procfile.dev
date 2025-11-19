@@ -1,2 +1,1 @@
 web: cd bookbot-api && bin/rails server
-css: cd bookbot-api && bin/rails tailwindcss:watch

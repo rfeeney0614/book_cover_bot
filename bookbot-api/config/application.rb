@@ -24,5 +24,8 @@ module BookCoverBot
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+    # Run as API-only app to remove non-API middleware. Keep controllers/views
+    # in the repo for reference while we build out the API.
+    config.api_only = true
   end
 end
