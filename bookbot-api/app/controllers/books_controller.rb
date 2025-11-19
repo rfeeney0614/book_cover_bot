@@ -4,6 +4,10 @@ class BooksController < ApplicationController
     @per_page = 15
     offset = (page - 1) * @per_page
     @books = Book.search(params[:search]).limit(@per_page).offset(offset)
+    respond_to do |format|
+      format.html
+      format.json { render json: @books }
+    end
   end
 
   def show

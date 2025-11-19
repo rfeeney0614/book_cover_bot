@@ -1,5 +1,5 @@
 export async function fetchBooks() {
-  const res = await fetch('/books.json', {
+  const res = await fetch('/api/books.json', {
     headers: { Accept: 'application/json' },
   });
   if (!res.ok) {

@@ -4,11 +4,18 @@ Rails.application.routes.draw do
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
+  # Ignore frontend HMR/websocket probe paths if they are accidentally forwarded here.
+  match '/ws', to: proc { [204, {}, ['']] }, via: :all
+  match '/sockjs-node', to: proc { [204, {}, ['']] }, via: :all
   mount MissionControl::Jobs::Engine, at: "/jobs"
   root "books#index"
 
   resources :books do
     resources :covers
+  end
+
+  namespace :api do
+    resources :books, only: [:index, :show, :create, :update]
   end
 
   get "/covers", to: "covers#index", as: :covers

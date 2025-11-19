@@ -1,6 +1,7 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import BooksIndex from './pages/BooksIndex';
+import BookShow from './pages/BookShow';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/books" element={<BooksIndex />} />
+            <Route path="/books/:id" element={<BookShow />} />
           </Routes>
         </main>
       </div>

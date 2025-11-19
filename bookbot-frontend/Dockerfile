@@ -11,6 +11,9 @@ COPY package.json package-lock.json ./
 # Use a recent npm 11.x to match the host lockfile format and avoid lockfile-parsing
 # issues that can appear across npm major versions.
 # Show npm output during build to aid debugging in CI/container environments
+# Upgrade npm to match host (npm 11) so `npm ci` accepts the committed lockfile
+RUN npm install -g npm@11.6.2
+# Show npm output during build to aid debugging in CI/container environments
 RUN npm ci
 
 # Copy app source
