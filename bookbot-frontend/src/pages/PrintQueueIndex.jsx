@@ -1,15 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import { fetchPrintQueue, incrementJobOrder, decrementJobOrder } from '../api/printQueue';
+import { triggerExport, checkExportStatus, getDownloadUrl } from '../api/printExport';
 import PrintQueueItem from '../components/PrintQueueItem';
+import ExportModal from '../components/ExportModal';
 
 export default function PrintQueueIndex() {
   const [queue, setQueue] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [exportStatus, setExportStatus] = useState(null);
+  const [exportId, setExportId] = useState(null);
 
   useEffect(() => {
     loadQueue();
   }, []);
+
+  useEffect(() => {
+    if (!exportId || !exportStatus || exportStatus === 'completed' || exportStatus === 'failed') {
+      return;
+    }
+
+    // Poll for export status
+    const pollInterval = setInterval(async () => {
+      try {
+        const result = await checkExportStatus(exportId);
+        setExportStatus(result.status);
+
+        if (result.status === 'completed') {
+          // Download the file
+          window.location.href = getDownloadUrl(exportId);
+          setTimeout(() => {
+            setExportStatus(null);
+            setExportId(null);
+          }, 2000);
+        } else if (result.status === 'failed') {
+          clearInterval(pollInterval);
+        }
+      } catch (err) {
+        console.error('Error checking export status:', err);
+        setExportStatus('failed');
+        clearInterval(pollInterval);
+      }
+    }, 2000);
+
+    return () => clearInterval(pollInterval);
+  }, [exportId, exportStatus]);
 
   const loadQueue = async () => {
     setLoading(true);
@@ -42,17 +77,53 @@ export default function PrintQueueIndex() {
     }
   };
 
+  const handleExport = async () => {
+    try {
+      setError(null);
+      const result = await triggerExport();
+      setExportId(result.id);
+      setExportStatus(result.status || 'pending');
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setExportStatus(null);
+    setExportId(null);
+  };
+
   const totalItems = queue.reduce((sum, item) => sum + item.print_quantity, 0);
 
   return (
     <div style={{ maxWidth: 960, margin: '0 auto', padding: 20 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h1>Print Queue</h1>
-        {queue.length > 0 && (
-          <div style={{ fontSize: 16, color: '#666' }}>
-            {queue.length} cover{queue.length !== 1 ? 's' : ''} • {totalItems} total print{totalItems !== 1 ? 's' : ''}
-          </div>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          {queue.length > 0 && (
+            <div style={{ fontSize: 16, color: '#666' }}>
+              {queue.length} cover{queue.length !== 1 ? 's' : ''} • {totalItems} total print{totalItems !== 1 ? 's' : ''}
+            </div>
+          )}
+          {queue.length > 0 && (
+            <button
+              onClick={handleExport}
+              disabled={!!exportStatus}
+              style={{
+                padding: '8px 16px',
+                fontSize: 16,
+                backgroundColor: '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: 4,
+                cursor: exportStatus ? 'not-allowed' : 'pointer',
+                opacity: exportStatus ? 0.6 : 1
+              }}
+            >
+              Export to PDF
+            </button>
+          )}
+        </div>
       </div>
 
       {loading && <div>Loading print queue...</div>}
@@ -75,6 +146,12 @@ export default function PrintQueueIndex() {
           ))}
         </div>
       )}
+
+      <ExportModal 
+        isOpen={!!exportStatus}
+        status={exportStatus}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 }

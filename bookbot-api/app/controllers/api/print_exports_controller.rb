@@ -17,12 +17,23 @@ module Api
       render json: { id: @print_export.id, status: @print_export.status }
     end
 
+    def export
+      @print_export = PrintExport.create
+      @print_export.job_orders.append(JobOrder.all)
+      @print_export.save
+      CompileExportJob.perform_later(@print_export.id)
+      render json: { id: @print_export.id, status: @print_export.status }, status: :created
+    end
+
     def download
-      # If there's an ActiveStorage attached PDF, redirect to its service URL
+      # If there's an ActiveStorage attached PDF, send it directly
       if @print_export.pdf.attached?
         begin
-          # Prefer a URL that will prompt download
-          redirect_to rails_blob_url(@print_export.pdf, disposition: 'attachment')
+          # Send the file data directly instead of redirecting
+          send_data @print_export.pdf.download,
+                    filename: @print_export.pdf.filename.to_s,
+                    type: @print_export.pdf.content_type,
+                    disposition: 'attachment'
         rescue => e
           render json: { error: e.message }, status: :internal_server_error
         end

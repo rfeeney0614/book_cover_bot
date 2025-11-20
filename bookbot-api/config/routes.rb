@@ -29,6 +29,9 @@ Rails.application.routes.draw do
         get :status
         get :download
       end
+      collection do
+        post :export
+      end
     end
     get 'print_queue', to: 'print_queue#index'
   end
