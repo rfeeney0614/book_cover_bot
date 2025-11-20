@@ -11,6 +11,7 @@ import JobOrdersIndex from './pages/JobOrdersIndex';
 import JobOrderShow from './pages/JobOrderShow';
 import PrintExportsIndex from './pages/PrintExportsIndex';
 import PrintExportShow from './pages/PrintExportShow';
+import PrintQueueIndex from './pages/PrintQueueIndex';
 
 function App() {
   return (
@@ -38,8 +39,9 @@ function App() {
             <Route path="/covers/:id" element={<CoverShow />} />
             <Route path="/formats" element={<FormatsIndex />} />
             <Route path="/formats/:id" element={<FormatShow />} />
-            <Route path="/print_queue" element={<JobOrdersIndex />} />
-            <Route path="/print_queue/:id" element={<JobOrderShow />} />
+            <Route path="/print_queue" element={<PrintQueueIndex />} />
+            <Route path="/job_orders" element={<JobOrdersIndex />} />
+            <Route path="/job_orders/:id" element={<JobOrderShow />} />
             <Route path="/print_exports" element={<PrintExportsIndex />} />
             <Route path="/print_exports/:id" element={<PrintExportShow />} />
           </Routes>

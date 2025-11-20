@@ -18,13 +18,19 @@ Rails.application.routes.draw do
     resources :books, only: [:index, :show, :create, :update]
     resources :covers, only: [:index, :show, :create, :update, :destroy]
     resources :formats, only: [:index, :show, :create, :update, :destroy]
-    resources :job_orders, only: [:index, :show, :create, :destroy]
+    resources :job_orders, only: [:index, :show, :create, :destroy] do
+      member do
+        patch :increment
+        patch :decrement
+      end
+    end
     resources :print_exports, only: [:index, :show, :create, :update, :destroy] do
       member do
         get :status
         get :download
       end
     end
+    get 'print_queue', to: 'print_queue#index'
   end
 
   get "/covers", to: "covers#index", as: :covers

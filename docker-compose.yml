@@ -46,6 +46,8 @@ services:
       - HOST=0.0.0.0
       - BROWSER=none
       - NODE_ENV=development
+      - REACT_APP_API_HOST=localhost
+      - REACT_APP_API_PORT=3000
     ports:
       - "3001:3000" # Map container 3000 to host 3001 to avoid conflict with Rails on 3000
     volumes:
