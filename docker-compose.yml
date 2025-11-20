@@ -44,6 +44,7 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true # helpful in some Docker setups for file watching
       - HOST=0.0.0.0
+      - BROWSER=none
       - NODE_ENV=development
     ports:
       - "3001:3000" # Map container 3000 to host 3001 to avoid conflict with Rails on 3000

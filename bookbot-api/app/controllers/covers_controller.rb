@@ -13,7 +13,7 @@ class CoversController < ApplicationController
 
   def create
     @book = Book.find(params[:book_id])
-    @comment = @book.covers.create(cover_params)
+    @cover = @book.covers.create(cover_params)
     redirect_to book_path(@book)
   end
 
@@ -88,6 +88,6 @@ class CoversController < ApplicationController
 
   private
     def cover_params
-      params.expect(cover: [:edition, :format_id, :image])
+      params.require(:cover).permit(:edition, :format_id, :image, :note)
     end
 end

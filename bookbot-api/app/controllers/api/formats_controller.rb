@@ -6,7 +6,7 @@ module Api
 
     def index
       formats = Format.all.limit(100)
-      render json: formats
+      render json: formats.as_json
     end
 
     def show
@@ -23,9 +23,13 @@ module Api
     end
 
     def update
+      Rails.logger.info("Api::FormatsController#update called with params: #{params.to_unsafe_h.inspect}")
+      Rails.logger.info("Resolved format_params: #{format_params.inspect}")
       if @format.update(format_params)
+        Rails.logger.info("Format ##{@format.id} updated successfully: #{@format.attributes.inspect}")
         render json: @format
       else
+        Rails.logger.warn("Failed to update Format ##{@format.id}: #{@format.errors.full_messages.inspect}")
         render json: { errors: @format.errors.full_messages }, status: :unprocessable_entity
       end
     end
@@ -42,7 +46,12 @@ module Api
     end
 
     def format_params
-      params.expect(format: [:name, :height])
+      # Accept either nested params (`format: { ... }`) or top-level params.
+      if params[:format]
+        params.require(:format).permit(:name, :height, :default)
+      else
+        params.permit(:name, :height, :default)
+      end
     end
   end
 end

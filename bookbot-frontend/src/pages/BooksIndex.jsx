@@ -1,6 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
+import BookForm from '../components/BookForm';
+import Modal from '../components/Modal';
 import { fetchBooks } from '../api/books';
 import BookList from '../components/BookList';
+import SearchControls from '../components/SearchControls';
 
 function Spinner({ size = 20 }) {
   const style = {
@@ -26,9 +29,9 @@ export default function BooksIndex() {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(15);
   const [totalCount, setTotalCount] = useState(0);
-  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [creating, setCreating] = useState(false);
   const debouncedRef = useRef(null);
 
   const load = (opts = {}) => {
@@ -48,17 +51,6 @@ export default function BooksIndex() {
   };
 
   useEffect(() => { load({ page: 1 }); }, []);
-
-  // Debounce searchTerm and trigger load
-  useEffect(() => {
-    if (debouncedRef.current) clearTimeout(debouncedRef.current);
-    debouncedRef.current = setTimeout(() => {
-      setPage(1);
-      load({ page: 1, search: searchTerm });
-    }, 350);
-    return () => clearTimeout(debouncedRef.current);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchTerm]);
 
   const gotoPage = (p) => {
     if (p === page) return;
@@ -82,22 +74,24 @@ export default function BooksIndex() {
       <h2>Books</h2>
 
       <div style={{ marginBottom: 12 }}>
-        <a href="/books/new">
-          <button type="button">Add New Book</button>
-        </a>
+        <button type="button" onClick={() => setCreating(true)}>Add New Book</button>
       </div>
 
+      <Modal open={creating} onClose={() => setCreating(false)} title="New Book" width={800}>
+        <BookForm onCancel={() => setCreating(false)} onSubmit={async (payload) => {
+          try {
+            const created = await (await import('../api/books')).createBook(payload);
+            setBooks((b) => [created, ...b]);
+            setTotalCount((c) => c + 1);
+            setCreating(false);
+          } catch (e) {
+            setError(e.message || String(e));
+          }
+        }} />
+      </Modal>
+
+      <SearchControls onSearch={(s) => { setPage(1); load({ page: 1, search: s }); }} placeholder="Search books..." />
       <div style={{ marginBottom: 12 }}>
-        <input
-          placeholder="Search books..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ marginRight: 8 }}
-          disabled={loading}
-        />
-        <button onClick={() => { setPage(1); load({ page: 1, search: searchTerm }); }} disabled={loading}>
-          Search
-        </button>
         <span style={{ marginLeft: 12 }}>
           {loading ? <><Spinner size={14} /> <span style={{ marginLeft: 6 }}>Loading…</span></> : <span>{totalCount} results</span>}
         </span>
