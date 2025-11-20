@@ -2,53 +2,129 @@ require 'hexapdf'
 require 'image_size'
 require 'rmagick'
 class PrintJobCompiler
-  def self.generate(jobs)
-    # Image only added to PDF once though used multiple times
-    # canvas = doc.pages.add.canvas
-    # canvas.image(file, at: [100, 500]) # auto-size based on image size
-    # canvas.image(file, at: [100, 300], width: 100) # height based on w/h ratio
-    # canvas.image(file, at: [300, 300], height: 100) # width based on w/h ratio
-    # canvas.image(file, at: [100, 100], width: 300, height: 100)
-
+  def self.generate(jobs, export = nil)
+    start_time = Time.now
+    puts "[PrintJobCompiler] Starting generation for #{jobs.count} jobs"
+    
+    if export
+      export.progress_text = "Preparing export..."
+      export.save
+    end
+    
     tmp_user_folder = "tmp/archive"
     FileUtils.mkdir_p(tmp_user_folder) unless Dir.exist?(tmp_user_folder)
 
     io = StringIO.new
     images_to_pack = []
+    
+    # Track downloaded files to avoid re-downloading the same cover
+    downloaded_files = {}
 
     width, height = 0,0
-    jobs.each do |job|
-      filename = job.cover&.image&.blob&.filename&.to_s
-      next if filename.nil?
-      
-      create_tmp_folder_and_store_documents(job.cover.image, tmp_user_folder, filename)
-      file = File.join(tmp_user_folder, filename)
-      save_rotated_image(tmp_user_folder, filename)
-      image_size = ImageSize.path(file)
-      scale = job.cover.format.height * 72 / image_size.height
-      width, height = image_size.width * scale, image_size.height * scale
-      job.quantity.times do |i|
-        images_to_pack << Binpack::Item.new(file, width + 2, height + 2)
+    download_time = 0
+    rotate_time = 0
+    
+    # Collect unique covers to download
+    unique_jobs = jobs.uniq { |job| job.cover.id }
+    
+    if export
+      export.progress_text = "Downloading #{unique_jobs.count} cover images..."
+      export.save
+    end
+    
+    # Download all unique covers in parallel
+    d_start = Time.now
+    download_threads = unique_jobs.map do |job|
+      Thread.new do
+        filename = job.cover&.image&.blob&.filename&.to_s
+        next if filename.nil?
+        
+        create_tmp_folder_and_store_documents(job.cover.image, tmp_user_folder, filename)
+        
+        file = File.join(tmp_user_folder, filename)
+        image_size = ImageSize.path(file)
+        scale = job.cover.format.height * 72 / image_size.height
+        width = image_size.width * scale
+        height = image_size.height * scale
+        
+        [job.cover.id, { file: file, width: width, height: height }]
       end
     end
+    
+    # Wait for all downloads to complete and build the cache
+    download_threads.each do |thread|
+      result = thread.value
+      downloaded_files[result[0]] = result[1] if result
+    end
+    download_time = Time.now - d_start
+    
+    if export
+      export.progress_text = "Processing #{jobs.count} covers..."
+      export.save
+    end
+    
+    # Now build the images_to_pack array using the cached data
+    jobs.each do |job|
+      cover_id = job.cover.id
+      cached = downloaded_files[cover_id]
+      next unless cached
+      
+      job.quantity.times do |i|
+        images_to_pack << Binpack::Item.new(cached[:file], cached[:width] + 2, cached[:height] + 2)
+      end
+    end
+    
+    pack_start = Time.now
     bins = Binpack::Bin.pack(images_to_pack, [], Binpack::Bin.new(612, 792, 10))
+    pack_time = Time.now - pack_start
+    
+    if export
+      export.progress_text = "Generating PDF with #{images_to_pack.count} images..."
+      export.save
+    end
+    
+    puts "[PrintJobCompiler] Download time: #{download_time.round(2)}s"
+    puts "[PrintJobCompiler] Rotate time: #{rotate_time.round(2)}s"
+    puts "[PrintJobCompiler] Pack time: #{pack_time.round(2)}s"
 
     # Add the page created above as second page
     #
+    pdf_start = Time.now
     pdf_path = File.join(tmp_user_folder, 'images.pdf')
+    rotated_cache = {} # Cache rotated images to avoid rotating the same file multiple times
+    
+    puts "[PrintJobCompiler] Creating PDF with #{images_to_pack.count} image instances from #{downloaded_files.count} unique files"
+    
     HexaPDF::Composer.create(pdf_path, page_size: :Letter, margin: 10) do |composer|
       bins.each_with_index do |bin, index|
         bin.items.sort_by { |b| [b[2], b[1]] }.each do |item|
           image = item[0]
           image_file = image.obj
           if image.rotated
-            image_file = get_rotated_image(tmp_user_folder, image_file)
+            # Rotate on-demand and cache the result
+            unless rotated_cache[image_file]
+              r_start = Time.now
+              rotated_cache[image_file] = create_rotated_image(tmp_user_folder, image_file)
+              rotate_time += (Time.now - r_start)
+            end
+            image_file = rotated_cache[image_file]
           end
           composer.image(image_file, height: image.height - 2, width: image.width - 2, position: :float, margin: [2,2,2,2])
         end
       end
       composer.document.write(io)
+      
+      # Check how many unique image XObjects are in the PDF
+      image_xobjects = composer.document.each(only_current: false).select { |obj| 
+        obj.kind_of?(Hash) && obj[:Subtype] == :Image 
+      }
+      puts "[PrintJobCompiler] PDF contains #{image_xobjects.count} unique image objects (should equal unique source files if HexaPDF is deduplicating)"
     end
+    pdf_time = Time.now - pdf_start
+    
+    puts "[PrintJobCompiler] PDF generation time: #{pdf_time.round(2)}s"
+    puts "[PrintJobCompiler] Total time: #{(Time.now - start_time).round(2)}s"
+    
     io.rewind
     FileUtils.rm_rf([tmp_user_folder])
     io
@@ -60,12 +136,18 @@ class PrintJobCompiler
    end
   end
 
-  def self.save_rotated_image(folder, filename)
+  def self.create_rotated_image(folder, filename)
     file = File.join(folder, filename)
     image = Magick::Image.read(file).first
     ext = File.extname(filename)
-    rotated_file = File.join(folder, File.basename(filename, ext) + 'rotated' + ext )
+    rotated_file = File.join(folder, File.basename(filename, ext) + 'rotated' + ext)
     image.rotate(90).write(rotated_file)
+    rotated_file
+  end
+
+  def self.save_rotated_image(folder, filename)
+    # Deprecated - keeping for backwards compatibility
+    create_rotated_image(folder, filename)
   end
 
   def self.get_rotated_image(folder, filename)

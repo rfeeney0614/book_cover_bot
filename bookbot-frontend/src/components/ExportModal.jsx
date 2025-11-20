@@ -1,9 +1,12 @@
 import React from 'react';
 
-export default function ExportModal({ isOpen, status, onClose }) {
+export default function ExportModal({ isOpen, status, progressText, errorMessage, onClose }) {
   if (!isOpen) return null;
 
   const getStatusMessage = () => {
+    if (errorMessage) return errorMessage;
+    if (progressText) return progressText;
+    
     switch (status) {
       case 'pending':
         return 'Starting export...';
@@ -39,9 +42,15 @@ export default function ExportModal({ isOpen, status, onClose }) {
         borderRadius: 8,
         maxWidth: 400,
         width: '90%',
-        textAlign: 'center'
+        textAlign: 'center',
+        border: status === 'failed' ? '3px solid #dc3545' : 'none'
       }}>
-        <h2 style={{ marginTop: 0 }}>Exporting Print Queue</h2>
+        <h2 style={{ 
+          marginTop: 0,
+          color: status === 'failed' ? '#dc3545' : '#333'
+        }}>
+          {status === 'failed' ? '⚠️ Export Failed' : 'Exporting Print Queue'}
+        </h2>
         
         {isProcessing && (
           <div style={{ margin: '24px 0' }}>
@@ -49,7 +58,7 @@ export default function ExportModal({ isOpen, status, onClose }) {
               width: 40,
               height: 40,
               border: '4px solid #f0f0f0',
-              borderTop: '4px solid #333',
+              borderTop: status === 'failed' ? '4px solid #dc3545' : '4px solid #333',
               borderRadius: '50%',
               margin: '0 auto',
               animation: 'spin 1s linear infinite'
@@ -63,7 +72,11 @@ export default function ExportModal({ isOpen, status, onClose }) {
           </div>
         )}
 
-        <p style={{ fontSize: 16, color: '#666' }}>
+        <p style={{ 
+          fontSize: 16, 
+          color: status === 'failed' ? '#dc3545' : '#666',
+          fontWeight: status === 'failed' ? 'bold' : 'normal'
+        }}>
           {getStatusMessage()}
         </p>
 
@@ -74,7 +87,11 @@ export default function ExportModal({ isOpen, status, onClose }) {
               marginTop: 16,
               padding: '8px 24px',
               fontSize: 16,
-              cursor: 'pointer'
+              cursor: 'pointer',
+              backgroundColor: '#dc3545',
+              color: 'white',
+              border: 'none',
+              borderRadius: 4
             }}
           >
             Close

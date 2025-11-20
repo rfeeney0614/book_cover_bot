@@ -14,7 +14,12 @@ module Api
     end
 
     def status
-      render json: { id: @print_export.id, status: @print_export.status }
+      render json: { 
+        id: @print_export.id, 
+        status: @print_export.status,
+        progress_text: @print_export.progress_text,
+        error_message: @print_export.error_message
+      }
     end
 
     def export

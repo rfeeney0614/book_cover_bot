@@ -10,6 +10,8 @@ export default function PrintQueueIndex() {
   const [error, setError] = useState(null);
   const [exportStatus, setExportStatus] = useState(null);
   const [exportId, setExportId] = useState(null);
+  const [progressText, setProgressText] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
     loadQueue();
@@ -25,6 +27,8 @@ export default function PrintQueueIndex() {
       try {
         const result = await checkExportStatus(exportId);
         setExportStatus(result.status);
+        setProgressText(result.progress_text);
+        setErrorMessage(result.error_message);
 
         if (result.status === 'completed') {
           // Download the file
@@ -32,6 +36,8 @@ export default function PrintQueueIndex() {
           setTimeout(() => {
             setExportStatus(null);
             setExportId(null);
+            setProgressText(null);
+            setErrorMessage(null);
           }, 2000);
         } else if (result.status === 'failed') {
           clearInterval(pollInterval);
@@ -39,6 +45,7 @@ export default function PrintQueueIndex() {
       } catch (err) {
         console.error('Error checking export status:', err);
         setExportStatus('failed');
+        setErrorMessage('Unable to check export status');
         clearInterval(pollInterval);
       }
     }, 2000);
@@ -91,6 +98,8 @@ export default function PrintQueueIndex() {
   const handleCloseModal = () => {
     setExportStatus(null);
     setExportId(null);
+    setProgressText(null);
+    setErrorMessage(null);
   };
 
   const totalItems = queue.reduce((sum, item) => sum + item.print_quantity, 0);
@@ -150,6 +159,8 @@ export default function PrintQueueIndex() {
       <ExportModal 
         isOpen={!!exportStatus}
         status={exportStatus}
+        progressText={progressText}
+        errorMessage={errorMessage}
         onClose={handleCloseModal}
       />
     </div>
