@@ -22,7 +22,10 @@ export default function CoverCard({ cover }) {
           </div>
         )}
         <h3 style={{ margin: '8px 0' }}>{title}</h3>
-        <div style={{ fontSize: 12, color: '#777' }}>ID: {cover.id}</div>
+        <div style={{ fontSize: 12, color: '#444' }}>{cover.book_title || cover.book || 'Unknown book'}</div>
+        <div style={{ fontSize: 12, color: '#666', marginTop: 6 }}>{cover.edition ? `Edition: ${cover.edition}` : null}</div>
+        <div style={{ fontSize: 12, color: '#777' }}>{cover.format_name ? `Format: ${cover.format_name}` : null}</div>
+        <div style={{ fontSize: 12, color: '#777', marginTop: 6 }}>ID: {cover.id}</div>
       </Link>
     </article>
   );

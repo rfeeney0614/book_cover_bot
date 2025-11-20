@@ -5,12 +5,26 @@ module Api
     before_action :set_cover, only: [:show, :update, :destroy]
 
     def index
-      covers = Cover.all
       if params[:book_id].present?
-        covers = covers.where(book_id: params[:book_id])
+        # Fetch all covers for a specific book, no pagination/search
+        covers = Cover.where(book_id: params[:book_id]).order(created_at: :desc)
+        render json: covers.map { |cover| cover_json(cover) }
+      else
+        # True covers index: apply search and pagination
+        page = [params[:page].to_i, 1].max
+        per_page = 15
+        offset = (page - 1) * per_page
+        relation = Cover.search(params[:search])
+        total_count = relation.count
+        covers = relation.order(created_at: :desc).limit(per_page).offset(offset)
+
+        render json: {
+          covers: covers.map { |cover| cover_json(cover) },
+          page: page,
+          per_page: per_page,
+          total_count: total_count,
+        }
       end
-      covers = covers.order(created_at: :desc).limit(200)
-      render json: covers.map { |cover| cover_json(cover) }
     end
 
     def show
@@ -35,9 +49,16 @@ module Api
           image_filename = blob.filename.to_s
         end
 
+        book_title = cover.book&.title
+        edition = cover.respond_to?(:edition) ? cover.edition : nil
+        format_name = cover.format&.name
+
         cover.as_json.merge({
           image_signed_id: image_signed_id,
-          image_filename: image_filename
+          image_filename: image_filename,
+          book_title: book_title,
+          edition: edition,
+          format_name: format_name
         })
     end
 
