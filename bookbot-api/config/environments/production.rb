@@ -61,6 +61,15 @@ Rails.application.configure do
   # Set host to be used by links generated in mailer templates.
   config.action_mailer.default_url_options = { host: "example.com" }
 
+  # Ensure URL helpers (including ActiveStorage `url_for`) generate links using
+  # the public host the frontend can reach. Use environment variables to allow
+  # overriding in different environments. Defaults to localhost:3000 for local
+  # development-with-production-mode containers.
+  routes_host = ENV.fetch("APP_HOST", "localhost")
+  routes_port = ENV.fetch("APP_PORT", "3000")
+  Rails.application.routes.default_url_options[:host] = routes_host
+  Rails.application.routes.default_url_options[:port] = routes_port.to_i
+
   # Specify outgoing SMTP server. Remember to add smtp/* credentials via rails credentials:edit.
   # config.action_mailer.smtp_settings = {
   #   user_name: Rails.application.credentials.dig(:smtp, :user_name),

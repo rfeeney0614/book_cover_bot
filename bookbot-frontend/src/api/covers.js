@@ -9,6 +9,17 @@ export async function fetchCovers(params = {}) {
   return res.json();
 }
 
+export async function fetchCoversForBook(bookId) {
+  // Assumes API supports /api/books/:id/covers.json or /api/covers.json?book_id=:id
+  const url = `/api/covers.json?book_id=${encodeURIComponent(bookId)}`;
+  const res = await fetch(url, { headers: { Accept: 'application/json' } });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`Failed to fetch covers for book (${res.status}): ${text}`);
+  }
+  return res.json();
+}
+
 export async function fetchCover(id) {
   const res = await fetch(`/api/covers/${id}.json`, { headers: { Accept: 'application/json' } });
   if (!res.ok) {

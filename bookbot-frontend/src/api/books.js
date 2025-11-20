@@ -1,14 +1,28 @@
-export async function fetchBooks() {
-  const res = await fetch('/api/books.json', {
-    headers: { Accept: 'application/json' },
-  });
+export async function fetchBooks({ page = 1, search = '' } = {}) {
+  const qs = new URLSearchParams();
+  if (page) qs.set('page', page);
+  if (search) qs.set('search', search);
+  const url = `/api/books.json${qs.toString() ? `?${qs.toString()}` : ''}`;
+  const res = await fetch(url, { headers: { Accept: 'application/json' } });
   if (!res.ok) {
     const text = await res.text().catch(() => '');
     throw new Error(`Failed to fetch books (${res.status}): ${text}`);
   }
-  const data = await res.json();
-  // If Rails responds with an object wrapper, try to normalize to an array
-  if (Array.isArray(data)) return data;
-  if (data && Array.isArray(data.books)) return data.books;
-  return data;
+  return res.json();
+}
+
+export async function createBook(book) {
+  const res = await fetch('/api/books.json', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+    body: JSON.stringify({ book }),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`Failed to create book (${res.status}): ${text}`);
+  }
+  return res.json();
 }

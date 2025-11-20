@@ -2,6 +2,7 @@ import './App.css';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import BooksIndex from './pages/BooksIndex';
 import BookShow from './pages/BookShow';
+import BooksNew from './pages/BooksNew';
 import CoversIndex from './pages/CoversIndex';
 import CoverShow from './pages/CoverShow';
 import FormatsIndex from './pages/FormatsIndex';
@@ -30,6 +31,7 @@ function App() {
         <main>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/books/new" element={<BooksNew />} />
             <Route path="/books" element={<BooksIndex />} />
             <Route path="/books/:id" element={<BookShow />} />
             <Route path="/covers" element={<CoversIndex />} />

@@ -9,6 +9,7 @@
 
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version
 FROM ruby:3.3.6 AS base
+ARG PRECOMPILE_ASSETS=false
 
 # Rails app lives here
 WORKDIR /rails
@@ -53,8 +54,13 @@ COPY bookbot-api/ .
 # Precompile bootsnap code for faster boot times
 RUN bundle exec bootsnap precompile app/ lib/
 
-# Precompiling assets for production without requiring secret RAILS_MASTER_KEY
-RUN SECRET_KEY_BASE_DUMMY=1 bundle exec rails assets:precompile
+# Precompile assets only when explicitly requested (API-only apps can skip this)
+RUN if [ "${PRECOMPILE_ASSETS}" = "true" ]; then \
+            echo "Precompiling assets..."; \
+            SECRET_KEY_BASE_DUMMY=1 bundle exec rails assets:precompile; \
+        else \
+            echo "Skipping assets:precompile (PRECOMPILE_ASSETS not set)"; \
+        fi
 
 
 

@@ -10,9 +10,16 @@ module Api
       page = [params[:page].to_i, 1].max
       per_page = 15
       offset = (page - 1) * per_page
-      books = Book.search(params[:search]).limit(per_page).offset(offset)
+      relation = Book.search(params[:search])
+      total_count = relation.count
+      books = relation.limit(per_page).offset(offset)
 
-      render json: books
+      render json: {
+        books: books,
+        page: page,
+        per_page: per_page,
+        total_count: total_count,
+      }
     end
 
     def show
