@@ -4,6 +4,7 @@ class CompileExportJob < ApplicationJob
   def perform(export_id)
     export = PrintExport.find(export_id)
     begin
+      
       io = PrintJobCompiler.generate(export.job_orders, export)
       export.pdf.attach(io: io, filename: "print_#{DateTime.now}.pdf")
       export.progress_text = "Saving PDF..."

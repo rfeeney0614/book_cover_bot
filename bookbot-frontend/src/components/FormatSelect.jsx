@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { fetchFormats } from '../api/formats';
 
-export default function FormatSelect({ value, onChange, placeholder = 'Select format...' }) {
-  const [search, setSearch] = useState('');
+export default function FormatSelect({ value, onChange }) {
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     let active = true;
     setLoading(true);
-    fetchFormats({ search })
+    fetchFormats()
       .then((data) => {
         if (!active) return;
         const formats = Array.isArray(data.formats) ? data.formats : data;
@@ -18,17 +17,10 @@ export default function FormatSelect({ value, onChange, placeholder = 'Select fo
       .catch(() => setOptions([]))
       .finally(() => setLoading(false));
     return () => { active = false; };
-  }, [search]);
+  }, []);
 
   return (
     <div style={{ position: 'relative', minWidth: 220 }}>
-      <input
-        type="text"
-        value={search}
-        onChange={e => setSearch(e.target.value)}
-        placeholder={placeholder}
-        style={{ width: '100%', marginBottom: 4 }}
-      />
       <select
         value={value || ''}
         onChange={e => onChange && onChange(e.target.value)}

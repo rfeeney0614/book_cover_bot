@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { fetchCovers, createCover, deleteCover } from '../api/covers';
+import { fetchCovers, createCover, deleteCover, fetchCover, updateCover } from '../api/covers';
+import { incrementJobOrder, decrementJobOrder } from '../api/printQueue';
+import { createJobOrder } from '../api/job_orders';
 import CoverList from '../components/CoverList';
 import CoverForm from '../components/CoverForm';
 import Modal from '../components/Modal';
+import Button from '../components/Button';
 import SearchControls from '../components/SearchControls';
 
 export default function CoversIndex() {
@@ -10,6 +13,12 @@ export default function CoversIndex() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [creating, setCreating] = useState(false);
+  const [editingOpen, setEditingOpen] = useState(false);
+  const [editingCover, setEditingCover] = useState(null);
+  const [editingLoading, setEditingLoading] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deletingCover, setDeletingCover] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(15);
   const [totalCount, setTotalCount] = useState(0);
@@ -64,11 +73,54 @@ export default function CoversIndex() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this cover?')) return;
+  const openDeleteModal = (cover) => {
+    setDeletingCover(cover);
+    setDeleteOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingCover) return;
+    setDeleting(true);
+    setError(null);
     try {
-      await deleteCover(id);
+      await deleteCover(deletingCover.id);
+      setDeleteOpen(false);
+      setDeletingCover(null);
       load();
+    } catch (e) {
+      setError(e.message || String(e));
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeleteOpen(false);
+    setDeletingCover(null);
+  };
+
+  const openEditor = async (cover) => {
+    setEditingLoading(true);
+    setError(null);
+    try {
+      // fetch fresh cover data before editing
+      const data = await fetchCover(cover.id);
+      setEditingCover(data);
+      setEditingOpen(true);
+    } catch (e) {
+      setError(e.message || String(e));
+    } finally {
+      setEditingLoading(false);
+    }
+  };
+
+  const handleUpdate = async (payload) => {
+    if (!editingCover) return;
+    try {
+      const updated = await updateCover(editingCover.id, payload);
+      setCovers((cs) => cs.map((c) => (c.id === updated.id ? updated : c)));
+      setEditingOpen(false);
+      setEditingCover(null);
     } catch (e) {
       setError(e.message || String(e));
     }
@@ -100,7 +152,68 @@ export default function CoversIndex() {
           }
         }} />
       </Modal>
-      <CoverList covers={covers} />
+      <CoverList covers={covers} onEdit={openEditor} onDelete={openDeleteModal} onQuantityChange={async (jobOrderId, action) => {
+        if (!jobOrderId) return;
+        setError(null);
+        try {
+          // optimistic update locally
+          setCovers((cs) => cs.map((c) => (c.job_order_id === jobOrderId ? { ...c, print_quantity: Math.max(0, (c.print_quantity || 0) + (action === 'increment' ? 1 : -1)) } : c)));
+          const res = action === 'increment' ? await incrementJobOrder(jobOrderId) : await decrementJobOrder(jobOrderId);
+          // handle server response; if deleted, clear job_order_id/print_quantity
+          if (res.deleted) {
+            setCovers((cs) => cs.map((c) => (c.job_order_id === res.id ? { ...c, job_order_id: null, print_quantity: 0 } : c)));
+          } else {
+            setCovers((cs) => cs.map((c) => (c.job_order_id === res.id ? { ...c, print_quantity: res.quantity } : c)));
+          }
+        } catch (e) {
+          setError(e.message || String(e));
+          // reload to recover correct state
+          load();
+        }
+      }} onAddToQueue={async (coverId) => {
+        setError(null);
+        // optimistic: set print_quantity to 1 for the cover
+        setCovers((cs) => cs.map((c) => (c.id === coverId ? { ...c, print_quantity: 1 } : c)));
+        try {
+          const created = await createJobOrder({ cover_id: coverId, quantity: 1 });
+          // created should be the job order; find the cover and attach job_order_id and quantity
+          setCovers((cs) => cs.map((c) => (c.id === coverId ? { ...c, job_order_id: created.id, print_quantity: created.quantity } : c)));
+        } catch (e) {
+          setError(e.message || String(e));
+          load();
+        }
+      }} />
+      <Modal open={deleteOpen} onClose={cancelDelete} title="Confirm delete" width={520}>
+        <div style={{ padding: 12 }}>
+          {deletingCover ? (
+            <>
+              <p>
+                Are you sure you want to delete the cover for 
+                <strong> "{deletingCover.book_title || deletingCover.book || 'Unknown book'}"</strong>
+                {deletingCover.edition ? (
+                  <span> — Edition: <strong>{deletingCover.edition}</strong></span>
+                ) : null}
+                ?
+              </p>
+              <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+                <Button variant="destructive" size="md" onClick={confirmDelete} disabled={deleting}>
+                  {deleting ? 'Deleting…' : 'Delete'}
+                </Button>
+                <Button variant="secondary" size="md" onClick={cancelDelete}>Cancel</Button>
+              </div>
+            </>
+          ) : (
+            <div>Nothing selected.</div>
+          )}
+        </div>
+      </Modal>
+      <Modal open={editingOpen} onClose={() => { setEditingOpen(false); setEditingCover(null); }} title={editingLoading ? 'Loading…' : 'Edit Cover'} width={600}>
+        {editingCover ? (
+          <CoverForm initial={editingCover} onCancel={() => { setEditingOpen(false); setEditingCover(null); }} onSubmit={handleUpdate} />
+        ) : (
+          <div style={{ padding: 20 }}>{editingLoading ? 'Loading cover…' : 'No cover selected.'}</div>
+        )}
+      </Modal>
       <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
         <button onClick={() => gotoPage(1)} disabled={loading || page <= 1}>First</button>
         <button onClick={() => gotoPage(Math.max(1, page - 1))} disabled={loading || page <= 1}>Prev</button>

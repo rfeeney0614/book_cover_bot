@@ -52,13 +52,19 @@ module Api
         book_title = cover.book&.title
         edition = cover.respond_to?(:edition) ? cover.edition : nil
         format_name = cover.format&.name
+        # include job order info when present so frontend can show queued counts
+        job_order = cover.respond_to?(:job_order) ? cover.job_order : nil
+        job_order_id = job_order&.id
+        print_quantity = job_order&.quantity || 0
 
         cover.as_json.merge({
           image_signed_id: image_signed_id,
           image_filename: image_filename,
           book_title: book_title,
           edition: edition,
-          format_name: format_name
+          format_name: format_name,
+          job_order_id: job_order_id,
+          print_quantity: job_order_id ? print_quantity : nil
         })
     end
 

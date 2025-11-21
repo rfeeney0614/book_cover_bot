@@ -55,7 +55,7 @@ module Api
     end
 
     def job_order_params
-      params.require(:job_order).permit(:note)
+      params.require(:job_order).permit(:note, :cover_id, :quantity)
     end
   end
 end
