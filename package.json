@@ -1,0 +1,12 @@
+{
+  "name": "book-cover-bot",
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=18.x",
+    "npm": ">=9.x"
+  },
+  "scripts": {
+    "build": "cd bookbot-frontend && npm install && npm run build && cd .. && bash bin/build-frontend.sh",
+    "heroku-postbuild": "npm run build"
+  }
+}
