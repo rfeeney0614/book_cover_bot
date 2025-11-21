@@ -31,22 +31,12 @@ module Api
       render json: cover_json(@cover)
     end
     def cover_json(cover)
-      host = Rails.application.routes.default_url_options[:host] || request&.host
-      port = Rails.application.routes.default_url_options[:port] || request&.port
-
-        # Use configured default_url_options (set via env/config). Avoid passing host/port kvargs
-        # to ActiveStorage helpers to prevent arity/kwargs mismatch in some Ruby/Rails combos.
-        # Safely attempt to generate URLs; if something raises, include the error message so
-        # the API doesn't return a 500 and we can inspect the cause from the client.
-        # Return signed blob ids and filenames (frontend can construct the ActiveStorage
-        # redirect URLs using these). This avoids calling URL helpers in the API and
-        # prevents server-side arity/kwargs issues.
-        image_signed_id = nil
-        image_filename = nil
+        # Use url_for to generate proper URLs for ActiveStorage attachments
+        image_url = nil
+        thumb_url = nil
         if cover.image.attached?
-          blob = cover.image.blob
-          image_signed_id = blob.signed_id
-          image_filename = blob.filename.to_s
+          image_url = url_for(cover.image)
+          thumb_url = url_for(cover.image.variant(:thumb)) rescue image_url
         end
 
         book_title = cover.book&.title
@@ -58,8 +48,8 @@ module Api
         print_quantity = job_order&.quantity || 0
 
         cover.as_json.merge({
-          image_signed_id: image_signed_id,
-          image_filename: image_filename,
+          image_url: image_url,
+          thumb_url: thumb_url,
           book_title: book_title,
           edition: edition,
           format_name: format_name,

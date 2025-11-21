@@ -15,12 +15,12 @@ export default function BookCard({ book }) {
   let img = null;
   if (book.covers && Array.isArray(book.covers) && book.covers.length > 0) {
     const first = book.covers[0];
-    img = first.thumb_url || first.image_url || first.thumbnail_url || (first.image_signed_id && first.image_filename ? `http://localhost:3000/rails/active_storage/blobs/redirect/${first.image_signed_id}/${encodeURIComponent(first.image_filename)}` : null);
+    img = first.image_url || first.thumb_url || first.thumbnail_url || null;
   }
   // server may provide a single representative `cover` object on books index
   if (!img && book.cover) {
     const c = book.cover;
-    img = c.image_url || (c.image_signed_id && c.image_filename ? `http://localhost:3000/rails/active_storage/blobs/redirect/${c.image_signed_id}/${encodeURIComponent(c.image_filename)}` : null);
+    img = c.image_url || c.thumb_url || null;
   }
   img = img || book.cover_url || book.image_url || book.thumbnail_url || null;
 

@@ -11,7 +11,7 @@ import CoverImage from './CoverImage';
 
 function PrintQueueItem({ item, onQuantityChange, onDelete }) {
   const [localQuantity, setLocalQuantity] = useState(item.print_quantity);
-  const img = item.thumb_url || item.image_url || null;
+  const img = item.image_url || item.thumb_url || null;
   const hasImage = !!img;
 
   const handleIncrement = async () => {

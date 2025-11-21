@@ -20,11 +20,10 @@ module Api
         first_cover = b.covers.order(created_at: :asc).first
         cover_info = nil
         if first_cover&.image&.attached?
-          blob = first_cover.image.blob
           cover_info = {
             id: first_cover.id,
-            image_signed_id: blob.signed_id,
-            image_filename: blob.filename.to_s
+            image_url: url_for(first_cover.image),
+            thumb_url: (url_for(first_cover.image.variant(:thumb)) rescue url_for(first_cover.image))
           }
         end
 

@@ -22,15 +22,7 @@ export default function CoverCard(props) {
   const [uploading, setUploading] = useState(false);
   const dragCounter = React.useRef(0);
   // Covers do not have a title
-  const img =
-    cover.thumb_url ||
-    cover.image_url ||
-    cover.thumbnail_url ||
-    (cover.image_signed_id && cover.image_filename
-      ? `http://localhost:3000/rails/active_storage/blobs/redirect/${cover.image_signed_id}/${encodeURIComponent(
-          cover.image_filename
-        )}`
-      : null);
+  const img = cover.image_url || cover.thumb_url || cover.thumbnail_url || null;
 
   const altText = img ? 'Cover' : 'Missing image';
 
