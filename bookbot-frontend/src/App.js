@@ -83,16 +83,8 @@ function NavBar() {
           component="div" 
           sx={{ 
             flexGrow: 1,
-            backgroundImage: 'url(/bookshelf-bg.webp)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            color: 'transparent',
             fontWeight: 'bold',
             letterSpacing: '0.5px',
-            display: 'inline-block',
           }}
         >
           WeeWordsWorkshop
