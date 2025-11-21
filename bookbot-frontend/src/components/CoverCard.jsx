@@ -1,6 +1,18 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import CoverImage from './CoverImage';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import CardActions from '@mui/material/CardActions';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import BrokenImageIcon from '@mui/icons-material/BrokenImage';
 
 export default function CoverCard(props) {
   const { cover, onOpen, onDelete } = props;
@@ -19,13 +31,44 @@ export default function CoverCard(props) {
 
   const content = (
     <>
-      <CoverImage src={img} alt={altText} />
-      <div style={{ padding: 12 }}>
-        {/* No title for covers */}
-        <div style={{ fontSize: 12, color: '#444' }}>{cover.book_title || cover.book || 'Unknown book'}</div>
-        <div style={{ fontSize: 12, color: '#666', marginTop: 6 }}>{cover.edition ? `Edition: ${cover.edition}` : null}</div>
-        <div style={{ fontSize: 12, color: '#777' }}>{cover.format_name ? `Format: ${cover.format_name}` : null}</div>
-      </div>
+      {img ? (
+        <CardMedia
+          component="img"
+          height="160"
+          image={img}
+          alt={altText}
+          sx={{ objectFit: 'cover' }}
+        />
+      ) : (
+        <Box
+          sx={{
+            height: 160,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            bgcolor: 'grey.100',
+            borderBottom: 1,
+            borderColor: 'divider',
+          }}
+        >
+          <BrokenImageIcon sx={{ fontSize: 48, color: 'grey.400' }} />
+        </Box>
+      )}
+      <CardContent>
+        <Typography variant="body2" color="text.primary" gutterBottom>
+          {cover.book_title || cover.book || 'Unknown book'}
+        </Typography>
+        {cover.edition && (
+          <Typography variant="caption" color="text.secondary" display="block">
+            Edition: {cover.edition}
+          </Typography>
+        )}
+        {cover.format_name && (
+          <Typography variant="caption" color="text.secondary" display="block">
+            Format: {cover.format_name}
+          </Typography>
+        )}
+      </CardContent>
     </>
   );
 
@@ -33,100 +76,83 @@ export default function CoverCard(props) {
   const hasJobOrder = cover.job_order_id || cover.print_quantity;
 
   return (
-    <article style={{ border: '1px solid #ddd', borderRadius: 6, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+    <Card 
+      sx={{ 
+        display: 'flex', 
+        flexDirection: 'column',
+        height: '100%',
+        transition: 'transform 0.2s, box-shadow 0.2s',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: 3,
+        },
+      }}
+    >
       {onOpen ? (
-        <div
+        <Box
           role="button"
           tabIndex={0}
           onClick={() => onOpen(cover)}
           onKeyPress={(e) => { if (e.key === 'Enter') onOpen(cover); }}
-          style={{ textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
+          sx={{ cursor: 'pointer', flexGrow: 1 }}
         >
           {content}
-        </div>
+        </Box>
       ) : (
-        <Link to={`/covers/${cover.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+        <Box
+          component={Link}
+          to={`/covers/${cover.id}`}
+          sx={{ textDecoration: 'none', color: 'inherit', flexGrow: 1 }}
+        >
           {content}
-        </Link>
+        </Box>
       )}
 
-      {/* Actions area at the bottom */}
-      {hasJobOrder ? (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, padding: 12 }}>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <div style={{ padding: '6px 10px', background: '#f3f4f6', borderRadius: 4, minWidth: 64, textAlign: 'center' }}>
-              <div style={{ fontWeight: 'bold' }}>{cover.print_quantity || 0}</div>
-              <div style={{ fontSize: 11, color: '#555' }}>queued</div>
-            </div>
-            <div style={{ display: 'flex', gap: 6 }}>
-              <button
-                onClick={(e) => { e.stopPropagation(); e.preventDefault(); props.onQuantityChange && props.onQuantityChange(cover.job_order_id, 'decrement'); }}
-                style={{ padding: '6px 8px', borderRadius: 4, cursor: 'pointer' }}
-                title="Decrease quantity"
-              >−</button>
-              <button
-                onClick={(e) => { e.stopPropagation(); e.preventDefault(); props.onQuantityChange && props.onQuantityChange(cover.job_order_id, 'increment'); }}
-                style={{ padding: '6px 8px', borderRadius: 4, cursor: 'pointer' }}
-                title="Increase quantity"
-              >+</button>
-            </div>
-          </div>
-          {onDelete && (
-            <div>
-              <button
-                aria-label="Delete cover"
-                onClick={(e) => { e.stopPropagation(); e.preventDefault(); onDelete(cover); }}
-                title="Delete cover"
-                style={{
-                  background: '#fee2e2',
-                  border: '1px solid #f87171',
-                  color: '#b91c1c',
-                  cursor: 'pointer',
-                  fontSize: 14,
-                  padding: '6px 8px',
-                  borderRadius: 6,
-                  lineHeight: 1,
-                }}
-              >
-                🗑
-              </button>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: 12 }}>
-          <div>
-            <button
-              onClick={(e) => { e.stopPropagation(); e.preventDefault(); props.onAddToQueue && props.onAddToQueue(cover.id); }}
-              style={{ padding: '6px 10px', borderRadius: 6, background: '#e6f4ea', border: '1px solid #a7f3d0', cursor: 'pointer' }}
-              title="Add initial print job"
+      <CardActions sx={{ justifyContent: 'space-between', px: 2, py: 1.5 }}>
+        {hasJobOrder ? (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Chip 
+              label={`${cover.print_quantity || 0} queued`}
+              size="small"
+              color="primary"
+              variant="outlined"
+            />
+            <IconButton
+              size="small"
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); props.onQuantityChange && props.onQuantityChange(cover.job_order_id, 'decrement'); }}
+              title="Decrease quantity"
             >
-              Add to queue
-            </button>
-          </div>
-          {onDelete && (
-            <div>
-              <button
-                aria-label="Delete cover"
-                onClick={(e) => { e.stopPropagation(); e.preventDefault(); onDelete(cover); }}
-                title="Delete cover"
-                style={{
-                  background: '#fee2e2',
-                  border: '1px solid #f87171',
-                  color: '#b91c1c',
-                  cursor: 'pointer',
-                  fontSize: 14,
-                  padding: '6px 8px',
-                  borderRadius: 6,
-                  lineHeight: 1,
-                }}
-              >
-                🗑
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-    </article>
+              <RemoveIcon fontSize="small" />
+            </IconButton>
+            <IconButton
+              size="small"
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); props.onQuantityChange && props.onQuantityChange(cover.job_order_id, 'increment'); }}
+              title="Increase quantity"
+            >
+              <AddIcon fontSize="small" />
+            </IconButton>
+          </Box>
+        ) : (
+          <Button
+            size="small"
+            variant="outlined"
+            color="success"
+            onClick={(e) => { e.stopPropagation(); e.preventDefault(); props.onAddToQueue && props.onAddToQueue(cover.id); }}
+          >
+            Add to queue
+          </Button>
+        )}
+        {onDelete && (
+          <IconButton
+            size="small"
+            color="error"
+            onClick={(e) => { e.stopPropagation(); e.preventDefault(); onDelete(cover); }}
+            title="Delete cover"
+          >
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        )}
+      </CardActions>
+    </Card>
   );
 }

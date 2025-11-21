@@ -1,4 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import SearchIcon from '@mui/icons-material/Search';
 
 export default function SearchControls({ onSearch, placeholder = 'Search...', disabled = false, initial = '' }) {
   const [value, setValue] = useState(initial || '');
@@ -37,22 +41,26 @@ export default function SearchControls({ onSearch, placeholder = 'Search...', di
     }
   };
 
-  const inputRef = useRef(null);
-
-  // Remove focus-restoring effect; focus loss is likely due to parent rerender, not value change.
-
   return (
-    <div style={{ marginBottom: 12 }}>
-      <input
-        ref={inputRef}
+    <Box sx={{ mb: 2, display: 'flex', gap: 1 }}>
+      <TextField
         placeholder={placeholder}
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={onKeyDown}
-        style={{ marginRight: 8 }}
         disabled={disabled}
+        size="small"
+        fullWidth
+        variant="outlined"
       />
-      <button onClick={submit} disabled={disabled}>Search</button>
-    </div>
+      <Button 
+        onClick={submit} 
+        disabled={disabled}
+        variant="contained"
+        startIcon={<SearchIcon />}
+      >
+        Search
+      </Button>
+    </Box>
   );
 }

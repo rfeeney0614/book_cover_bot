@@ -1,6 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import CoverImage from './CoverImage';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import BrokenImageIcon from '@mui/icons-material/BrokenImage';
 
 export default function BookCard({ book }) {
   const title = book.title || book.name || 'Untitled';
@@ -20,16 +25,54 @@ export default function BookCard({ book }) {
   img = img || book.cover_url || book.image_url || book.thumbnail_url || null;
 
   return (
-    <article style={{ border: '1px solid #ddd', borderRadius: 6, position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-      <Link to={`/books/${book.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-        <CoverImage src={img} alt={title} />
-
-        <div style={{ padding: 12 }}>
-          <h3 style={{ margin: '8px 0' }}>{title}</h3>
-          {author && <div style={{ color: '#555', marginBottom: 8 }}>{author}</div>}
-          
-        </div>
-      </Link>
-    </article>
+    <Card 
+      component={Link} 
+      to={`/books/${book.id}`} 
+      sx={{ 
+        textDecoration: 'none', 
+        display: 'flex', 
+        flexDirection: 'column',
+        height: '100%',
+        transition: 'transform 0.2s, box-shadow 0.2s',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: 3,
+        },
+      }}
+    >
+      {img ? (
+        <CardMedia
+          component="img"
+          height="160"
+          image={img}
+          alt={title}
+          sx={{ objectFit: 'cover' }}
+        />
+      ) : (
+        <Box
+          sx={{
+            height: 160,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            bgcolor: 'grey.100',
+            borderBottom: 1,
+            borderColor: 'divider',
+          }}
+        >
+          <BrokenImageIcon sx={{ fontSize: 48, color: 'grey.400' }} />
+        </Box>
+      )}
+      <CardContent sx={{ flexGrow: 1 }}>
+        <Typography variant="h6" component="h3" gutterBottom>
+          {title}
+        </Typography>
+        {author && (
+          <Typography variant="body2" color="text.secondary">
+            {author}
+          </Typography>
+        )}
+      </CardContent>
+    </Card>
   );
 }

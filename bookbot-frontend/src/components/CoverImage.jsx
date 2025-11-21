@@ -1,34 +1,44 @@
 import React from 'react';
-import { FaImage } from 'react-icons/fa';
-import { MdBrokenImage } from 'react-icons/md';
+import Box from '@mui/material/Box';
+import BrokenImageIcon from '@mui/icons-material/BrokenImage';
 
 export default function CoverImage({ src, alt, style }) {
   return (
-    <div style={{ width: '100%', background: '#fafafa' }}>
+    <Box sx={{ width: '100%', bgcolor: 'grey.50' }}>
       {src ? (
-        <div style={{ width: '100%', height: 160, overflow: 'hidden' }}>
-          <img
+        <Box sx={{ width: '100%', height: 160, overflow: 'hidden' }}>
+          <Box
+            component="img"
             src={src}
             alt={alt}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' , borderRadius: 0, ...style }}
+            sx={{ 
+              width: '100%', 
+              height: '100%', 
+              objectFit: 'cover', 
+              display: 'block', 
+              borderRadius: 0, 
+              ...style 
+            }}
           />
-        </div>
+        </Box>
       ) : (
-        <div
-          style={{
+        <Box
+          sx={{
             width: '100%',
             height: 160,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            border: '1px dashed #ccc',
-            boxShadow: '0 1px 4px #ccc',
+            border: 1,
+            borderStyle: 'dashed',
+            borderColor: 'divider',
+            boxShadow: 1,
             ...style,
           }}
         >
-          <MdBrokenImage size={48} color="#ccc" />
-        </div>
+          <BrokenImageIcon sx={{ fontSize: 48, color: 'grey.400' }} />
+        </Box>
       )}
-    </div>
+    </Box>
   );
 }

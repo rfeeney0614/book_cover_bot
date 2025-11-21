@@ -88,6 +88,6 @@ class CoversController < ApplicationController
 
   private
     def cover_params
-      params.require(:cover).permit(:edition, :format_id, :image, :note)
+      params.require(:cover).permit(:edition, :format_id, :image, :note, :book_id)
     end
 end

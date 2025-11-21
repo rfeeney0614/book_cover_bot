@@ -1,4 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
 import { fetchFormats } from '../api/formats';
 
 export default function FormatSelect({ value, onChange }) {
@@ -20,18 +25,28 @@ export default function FormatSelect({ value, onChange }) {
   }, []);
 
   return (
-    <div style={{ position: 'relative', minWidth: 220 }}>
-      <select
+    <FormControl fullWidth variant="outlined" disabled={loading}>
+      <Select
         value={value || ''}
         onChange={e => onChange && onChange(e.target.value)}
-        style={{ width: '100%' }}
+        displayEmpty
+        endAdornment={
+          loading ? (
+            <Box sx={{ pr: 2 }}>
+              <CircularProgress size={20} />
+            </Box>
+          ) : null
+        }
       >
-        <option value="">-- Select Format --</option>
+        <MenuItem value="">
+          <em>-- Select Format --</em>
+        </MenuItem>
         {options.map(f => (
-          <option key={f.id} value={f.id}>{f.name} ({f.height} cm)</option>
+          <MenuItem key={f.id} value={f.id}>
+            {f.name} ({f.height} cm)
+          </MenuItem>
         ))}
-      </select>
-      {loading && <div style={{ position: 'absolute', right: 8, top: 8, fontSize: 12 }}>Loading…</div>}
-    </div>
+      </Select>
+    </FormControl>
   );
 }

@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from 'react';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
+import Pagination from '@mui/material/Pagination';
+import AddIcon from '@mui/icons-material/Add';
 import { fetchCovers, createCover, deleteCover, fetchCover, updateCover } from '../api/covers';
 import { incrementJobOrder, decrementJobOrder } from '../api/printQueue';
 import { createJobOrder } from '../api/job_orders';
 import CoverList from '../components/CoverList';
 import CoverForm from '../components/CoverForm';
 import Modal from '../components/Modal';
-import Button from '../components/Button';
 import SearchControls from '../components/SearchControls';
 
 export default function CoversIndex() {
@@ -47,22 +54,13 @@ export default function CoversIndex() {
 
   // Search is handled by SearchControls (debounced internally)
 
-  const gotoPage = (p) => {
+  const gotoPage = (e, p) => {
     if (p === page) return;
     setPage(p);
     load({ page: p });
   };
 
   const totalPages = Math.max(1, Math.ceil(totalCount / perPage));
-
-  const pageNumbers = () => {
-    const maxPages = 7;
-    const start = Math.max(1, page - Math.floor(maxPages / 2));
-    const end = Math.min(totalPages, start + maxPages - 1);
-    const nums = [];
-    for (let i = start; i <= end; i++) nums.push(i);
-    return nums;
-  };
 
   const handleCreate = async (payload) => {
     try {
@@ -118,10 +116,10 @@ export default function CoversIndex() {
   const handleUpdate = async (payload) => {
     if (!editingCover) return;
     try {
-      const updated = await updateCover(editingCover.id, payload);
-      setCovers((cs) => cs.map((c) => (c.id === updated.id ? updated : c)));
+      await updateCover(editingCover.id, payload);
       setEditingOpen(false);
       setEditingCover(null);
+      load();
     } catch (e) {
       setError(e.message || String(e));
     }
@@ -130,17 +128,36 @@ export default function CoversIndex() {
   // Keep search controls mounted during loading to avoid remount loops.
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>Covers</h2>
-      <div style={{ marginBottom: 12 }}>
-        <button type="button" onClick={() => setCreating(true)}>New Cover</button>
-      </div>
+    <Container maxWidth="xl" sx={{ py: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h4" component="h1">
+          Covers
+        </Typography>
+        <Button 
+          variant="contained" 
+          startIcon={<AddIcon />}
+          onClick={() => setCreating(true)}
+        >
+          New Cover
+        </Button>
+      </Box>
+
       <SearchControls onSearch={(s) => { setSearch(s); setPage(1); load({ page: 1, search: s }); }} placeholder="Search covers..." />
-      <div style={{ marginBottom: 12 }}>
-        <span style={{ marginLeft: 12 }}>
-          {loading ? <div>Loading…</div> : <div>{totalCount} results</div>}
-        </span>
-      </div>
+      
+      <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+        {loading ? (
+          <>
+            <CircularProgress size={16} />
+            <Typography variant="body2" color="text.secondary">Loading…</Typography>
+          </>
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            {totalCount} results
+          </Typography>
+        )}
+      </Box>
+
+      {error && <Alert severity="error" sx={{ mb: 2 }}>Error: {error}</Alert>}
       <Modal open={creating} onClose={() => setCreating(false)} title="New Cover" width={600}>
         <CoverForm onCancel={() => setCreating(false)} onSubmit={async (payload) => {
           try {
@@ -185,60 +202,49 @@ export default function CoversIndex() {
         }
       }} />
       <Modal open={deleteOpen} onClose={cancelDelete} title="Confirm delete" width={520}>
-        <div style={{ padding: 12 }}>
-          {deletingCover ? (
-            <>
-              <p>
-                Are you sure you want to delete the cover for 
-                <strong> "{deletingCover.book_title || deletingCover.book || 'Unknown book'}"</strong>
-                {deletingCover.edition ? (
-                  <span> — Edition: <strong>{deletingCover.edition}</strong></span>
-                ) : null}
-                ?
-              </p>
-              <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
-                <Button variant="destructive" size="md" onClick={confirmDelete} disabled={deleting}>
-                  {deleting ? 'Deleting…' : 'Delete'}
-                </Button>
-                <Button variant="secondary" size="md" onClick={cancelDelete}>Cancel</Button>
-              </div>
-            </>
-          ) : (
-            <div>Nothing selected.</div>
-          )}
-        </div>
+        {deletingCover ? (
+          <Box>
+            <Typography variant="body1" gutterBottom>
+              Are you sure you want to delete the cover for{' '}
+              <strong>"{deletingCover.book_title || deletingCover.book || 'Unknown book'}"</strong>
+              {deletingCover.edition && (
+                <span> — Edition: <strong>{deletingCover.edition}</strong></span>
+              )}
+              ?
+            </Typography>
+            <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+              <Button variant="contained" color="error" onClick={confirmDelete} disabled={deleting}>
+                {deleting ? 'Deleting…' : 'Delete'}
+              </Button>
+              <Button variant="outlined" onClick={cancelDelete}>Cancel</Button>
+            </Box>
+          </Box>
+        ) : (
+          <Typography>Nothing selected.</Typography>
+        )}
       </Modal>
       <Modal open={editingOpen} onClose={() => { setEditingOpen(false); setEditingCover(null); }} title={editingLoading ? 'Loading…' : 'Edit Cover'} width={600}>
         {editingCover ? (
           <CoverForm initial={editingCover} onCancel={() => { setEditingOpen(false); setEditingCover(null); }} onSubmit={handleUpdate} />
         ) : (
-          <div style={{ padding: 20 }}>{editingLoading ? 'Loading cover…' : 'No cover selected.'}</div>
+          <Box sx={{ py: 3, textAlign: 'center' }}>
+            <Typography>{editingLoading ? 'Loading cover…' : 'No cover selected.'}</Typography>
+          </Box>
         )}
       </Modal>
-      <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <button onClick={() => gotoPage(1)} disabled={loading || page <= 1}>First</button>
-        <button onClick={() => gotoPage(Math.max(1, page - 1))} disabled={loading || page <= 1}>Prev</button>
-
-        <div>
-          {pageNumbers().map((p) => (
-            <button
-              key={p}
-              onClick={() => gotoPage(p)}
-              disabled={loading}
-              style={{ margin: '0 3px', fontWeight: p === page ? 'bold' : 'normal' }}
-            >
-              {p}
-            </button>
-          ))}
-        </div>
-
-        <button onClick={() => gotoPage(Math.min(totalPages, page + 1))} disabled={loading || page >= totalPages}>Next</button>
-        <button onClick={() => gotoPage(totalPages)} disabled={loading || page >= totalPages}>Last</button>
-
-        <div style={{ marginLeft: 'auto' }}>
-          Page {page} of {totalPages}
-        </div>
-      </div>
-    </div>
+      {totalPages > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+          <Pagination 
+            count={totalPages} 
+            page={page} 
+            onChange={gotoPage}
+            disabled={loading}
+            color="primary"
+            showFirstButton
+            showLastButton
+          />
+        </Box>
+      )}
+    </Container>
   );
 }

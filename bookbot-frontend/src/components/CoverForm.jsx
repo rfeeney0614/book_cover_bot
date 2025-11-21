@@ -1,4 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 import BookSelect from './BookSelect';
 import FormatSelect from './FormatSelect';
 import { fetchFormats } from '../api/formats';
@@ -50,32 +55,51 @@ export default function CoverForm({ initial = {}, onCancel, onSubmit, disableBoo
   };
 
   return (
-    <form onSubmit={submit} style={{ maxWidth: 720 }}>
-      <div style={{ marginBottom: 8 }}>
-        <label>Edition</label>
-        <input name="edition" value={form.edition} onChange={handleChange} style={{ width: '100%' }} />
-      </div>
-      <div style={{ marginBottom: 8 }}>
-        <label>Book</label>
-        {disableBookSelect || (initial && initial.id) ? (
-          // Editing from the books page or when explicitly disabled: show book as a label
-          <div style={{ padding: '8px 10px', background: '#f5f5f5', borderRadius: 4 }}>{initial.book_title || initial.book || form.book_id}</div>
-        ) : (
-          <BookSelect value={form.book_id} onChange={handleBookSelect} />
-        )}
-      </div>
-      <div style={{ marginBottom: 8 }}>
-        <label>Note</label>
-        <textarea name="note" value={form.note} onChange={handleChange} style={{ width: '100%' }} />
-      </div>
-      <div style={{ marginBottom: 8 }}>
-        <label>Format</label>
-        <FormatSelect value={form.format_id} onChange={handleFormatSelect} />
-      </div>
-      <div style={{ display: 'flex', gap: 8 }}>
-        <button type="submit">Save</button>
-        <button type="button" onClick={onCancel}>Cancel</button>
-      </div>
-    </form>
+    <Box component="form" onSubmit={submit} sx={{ maxWidth: 720 }}>
+      <Stack spacing={2}>
+        <TextField
+          label="Edition"
+          name="edition"
+          value={form.edition}
+          onChange={handleChange}
+          fullWidth
+          variant="outlined"
+        />
+        <Box>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            Book
+          </Typography>
+          {disableBookSelect ? (
+            <Box sx={{ p: 1.5, bgcolor: 'grey.100', borderRadius: 1 }}>
+              <Typography variant="body2">
+                {initial.book_title || initial.book || form.book_id}
+              </Typography>
+            </Box>
+          ) : (
+            <BookSelect value={form.book_id} onChange={handleBookSelect} />
+          )}
+        </Box>
+        <TextField
+          label="Note"
+          name="note"
+          value={form.note}
+          onChange={handleChange}
+          fullWidth
+          variant="outlined"
+          multiline
+          rows={3}
+        />
+        <Box>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            Format
+          </Typography>
+          <FormatSelect value={form.format_id} onChange={handleFormatSelect} />
+        </Box>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button type="submit" variant="contained">Save</Button>
+          <Button type="button" onClick={onCancel} variant="outlined">Cancel</Button>
+        </Box>
+      </Stack>
+    </Box>
   );
 }

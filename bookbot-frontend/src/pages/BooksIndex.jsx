@@ -1,28 +1,17 @@
 import React, { useEffect, useState, useRef } from 'react';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
+import Pagination from '@mui/material/Pagination';
+import AddIcon from '@mui/icons-material/Add';
 import BookForm from '../components/BookForm';
 import Modal from '../components/Modal';
 import { fetchBooks } from '../api/books';
 import BookList from '../components/BookList';
 import SearchControls from '../components/SearchControls';
-
-function Spinner({ size = 20 }) {
-  const style = {
-    width: size,
-    height: size,
-    border: `${Math.max(2, Math.round(size / 8))}px solid #ddd`,
-    borderTop: `${Math.max(2, Math.round(size / 8))}px solid #333`,
-    borderRadius: '50%',
-    animation: 'spin 1s linear infinite',
-    display: 'inline-block',
-    verticalAlign: 'middle',
-  };
-  return (
-    <div style={{ display: 'inline-block', lineHeight: 0 }}>
-      <div style={style} />
-      <style>{`@keyframes spin { from { transform: rotate(0deg);} to { transform: rotate(360deg);} }`}</style>
-    </div>
-  );
-}
 
 export default function BooksIndex() {
   const [books, setBooks] = useState([]);
@@ -52,7 +41,7 @@ export default function BooksIndex() {
 
   useEffect(() => { load({ page: 1 }); }, []);
 
-  const gotoPage = (p) => {
+  const gotoPage = (e, p) => {
     if (p === page) return;
     setPage(p);
     load({ page: p });
@@ -60,22 +49,20 @@ export default function BooksIndex() {
 
   const totalPages = Math.max(1, Math.ceil(totalCount / perPage));
 
-  const pageNumbers = () => {
-    const maxPages = 7;
-    const start = Math.max(1, page - Math.floor(maxPages / 2));
-    const end = Math.min(totalPages, start + maxPages - 1);
-    const nums = [];
-    for (let i = start; i <= end; i++) nums.push(i);
-    return nums;
-  };
-
   return (
-    <div style={{ padding: 20 }}>
-      <h2>Books</h2>
-
-      <div style={{ marginBottom: 12 }}>
-        <button type="button" onClick={() => setCreating(true)}>Add New Book</button>
-      </div>
+    <Container maxWidth="xl" sx={{ py: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h4" component="h1">
+          Books
+        </Typography>
+        <Button 
+          variant="contained" 
+          startIcon={<AddIcon />}
+          onClick={() => setCreating(true)}
+        >
+          Add New Book
+        </Button>
+      </Box>
 
       <Modal open={creating} onClose={() => setCreating(false)} title="New Book" width={800}>
         <BookForm onCancel={() => setCreating(false)} onSubmit={async (payload) => {
@@ -91,40 +78,37 @@ export default function BooksIndex() {
       </Modal>
 
       <SearchControls onSearch={(s) => { setPage(1); load({ page: 1, search: s }); }} placeholder="Search books..." />
-      <div style={{ marginBottom: 12 }}>
-        <span style={{ marginLeft: 12 }}>
-          {loading ? <><Spinner size={14} /> <span style={{ marginLeft: 6 }}>Loading…</span></> : <span>{totalCount} results</span>}
-        </span>
-      </div>
+      
+      <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+        {loading ? (
+          <>
+            <CircularProgress size={16} />
+            <Typography variant="body2" color="text.secondary">Loading…</Typography>
+          </>
+        ) : (
+          <Typography variant="body2" color="text.secondary">
+            {totalCount} results
+          </Typography>
+        )}
+      </Box>
 
-      {error && <div style={{ padding: 12, color: 'red' }}>Error: {error}</div>}
+      {error && <Alert severity="error" sx={{ mb: 2 }}>Error: {error}</Alert>}
 
       <BookList books={books} />
 
-      <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <button onClick={() => gotoPage(1)} disabled={loading || page <= 1}>First</button>
-        <button onClick={() => gotoPage(Math.max(1, page - 1))} disabled={loading || page <= 1}>Prev</button>
-
-        <div>
-          {pageNumbers().map((p) => (
-            <button
-              key={p}
-              onClick={() => gotoPage(p)}
-              disabled={loading}
-              style={{ margin: '0 3px', fontWeight: p === page ? 'bold' : 'normal' }}
-            >
-              {p}
-            </button>
-          ))}
-        </div>
-
-        <button onClick={() => gotoPage(Math.min(totalPages, page + 1))} disabled={loading || page >= totalPages}>Next</button>
-        <button onClick={() => gotoPage(totalPages)} disabled={loading || page >= totalPages}>Last</button>
-
-        <div style={{ marginLeft: 'auto' }}>
-          Page {page} of {totalPages}
-        </div>
-      </div>
-    </div>
+      {totalPages > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+          <Pagination 
+            count={totalPages} 
+            page={page} 
+            onChange={gotoPage}
+            disabled={loading}
+            color="primary"
+            showFirstButton
+            showLastButton
+          />
+        </Box>
+      )}
+    </Container>
   );
 }

@@ -98,7 +98,7 @@ module Api
 
     def cover_params
       # Permit basic attributes; attachments (ActiveStorage) uploads should use separate direct upload endpoints.
-      params.require(:cover).permit(:title, :note, :book_id)
+      params.require(:cover).permit(:title, :note, :book_id, :edition, :format_id)
     end
   end
 end
