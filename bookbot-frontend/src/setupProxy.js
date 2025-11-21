@@ -37,14 +37,7 @@ module.exports = function (app) {
     // eslint-disable-next-line no-console
     console.log(`[setupProxy] Proxy registered for ${p} -> ${API_TARGET}`);
   });
-    // Prevent the dev server from proxying websocket health checks or other /ws paths
-    // by handling them locally before other proxy rules run.
-    app.use('/ws', (req, res) => {
-      res.status(204).end();
-    });
-
-  // Explicitly do not proxy websocket or HMR endpoints
-  // (CRA uses /sockjs-node for HMR; ensure we don't forward it)
-  app.use('/sockjs-node', (req, res, next) => next());
-  app.use('/ws', (req, res, next) => next());
+  
+  // Note: /ws and /sockjs-node are used by webpack dev server for HMR
+  // Do NOT intercept these paths or hot reloading will break
 };

@@ -50,6 +50,8 @@ services:
       - NODE_ENV=development
       - REACT_APP_API_HOST=localhost
       - REACT_APP_API_PORT=3001
+      - FAST_REFRESH=false # Disable fast refresh to avoid websocket issues in Docker
+      - WATCHPACK_POLLING=true
     ports:
       - "3000:3000" # Map container 3000 to host 3000
     volumes:
