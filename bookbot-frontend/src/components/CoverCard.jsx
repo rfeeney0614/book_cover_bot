@@ -210,72 +210,106 @@ export default function CoverCard(props) {
         </Box>
       )}
 
-      <CardActions sx={{ justifyContent: 'space-between', px: 2, py: 1.5 }}>
+      <CardActions sx={{ flexDirection: 'column', alignItems: 'stretch', px: 2, py: 1.5, gap: 1 }}>
         {hasJobOrder ? (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Chip 
-              label={`${cover.print_quantity || 0} queued`}
-              size="small"
-              color="primary"
-              variant="outlined"
-            />
-            <IconButton
-              size="small"
-              onClick={(e) => { e.stopPropagation(); e.preventDefault(); props.onQuantityChange && props.onQuantityChange(cover.job_order_id, 'decrement', cover.id); }}
-              title="Decrease quantity"
-              disabled={isQueueLoading}
-            >
-              <RemoveIcon fontSize="small" />
-            </IconButton>
-            <IconButton
-              size="small"
-              onClick={(e) => { e.stopPropagation(); e.preventDefault(); props.onQuantityChange && props.onQuantityChange(cover.job_order_id, 'increment', cover.id); }}
-              title="Increase quantity"
-              disabled={isQueueLoading}
-            >
-              <AddIcon fontSize="small" />
-            </IconButton>
-          </Box>
-        ) : (
-          <Button
-            size="small"
-            variant="outlined"
-            color="success"
-            onClick={(e) => { e.stopPropagation(); e.preventDefault(); props.onAddToQueue && props.onAddToQueue(cover.id); }}
-            disabled={isQueueLoading}
-          >
-            Add to queue
-          </Button>
-        )}
-        <Box sx={{ display: 'flex', gap: 0.5 }}>
-          {onImageUpload && (
-            <IconButton
-              component="label"
-              size="small"
-              color="primary"
-              title="Upload image"
-              disabled={uploading}
-            >
-              <CloudUploadIcon fontSize="small" />
-              <input
-                type="file"
-                hidden
-                accept="image/*"
-                onChange={handleFileSelect}
+          <>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+              <IconButton
+                size="small"
+                onClick={(e) => { e.stopPropagation(); e.preventDefault(); props.onQuantityChange && props.onQuantityChange(cover.job_order_id, 'decrement', cover.id); }}
+                title="Decrease quantity"
+                disabled={isQueueLoading}
+              >
+                <RemoveIcon fontSize="small" />
+              </IconButton>
+              <Chip 
+                label={`${cover.print_quantity || 0} queued`}
+                size="small"
+                color="primary"
+                variant="outlined"
               />
-            </IconButton>
-          )}
-          {onDelete && (
-            <IconButton
+              <IconButton
+                size="small"
+                onClick={(e) => { e.stopPropagation(); e.preventDefault(); props.onQuantityChange && props.onQuantityChange(cover.job_order_id, 'increment', cover.id); }}
+                title="Increase quantity"
+                disabled={isQueueLoading}
+              >
+                <AddIcon fontSize="small" />
+              </IconButton>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 0.5 }}>
+              {onImageUpload && (
+                <IconButton
+                  component="label"
+                  size="small"
+                  color="primary"
+                  title="Upload image"
+                  disabled={uploading}
+                >
+                  <CloudUploadIcon fontSize="small" />
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                  />
+                </IconButton>
+              )}
+              {onDelete && (
+                <IconButton
+                  size="small"
+                  color="error"
+                  onClick={(e) => { e.stopPropagation(); e.preventDefault(); onDelete(cover); }}
+                  title="Delete cover"
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              )}
+            </Box>
+          </>
+        ) : (
+          <>
+            <Button
               size="small"
-              color="error"
-              onClick={(e) => { e.stopPropagation(); e.preventDefault(); onDelete(cover); }}
-              title="Delete cover"
+              variant="outlined"
+              color="success"
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); props.onAddToQueue && props.onAddToQueue(cover.id); }}
+              disabled={isQueueLoading}
+              fullWidth
             >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          )}
-        </Box>
+              Add to queue
+            </Button>
+            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 0.5 }}>
+              {onImageUpload && (
+                <IconButton
+                  component="label"
+                  size="small"
+                  color="primary"
+                  title="Upload image"
+                  disabled={uploading}
+                >
+                  <CloudUploadIcon fontSize="small" />
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                  />
+                </IconButton>
+              )}
+              {onDelete && (
+                <IconButton
+                  size="small"
+                  color="error"
+                  onClick={(e) => { e.stopPropagation(); e.preventDefault(); onDelete(cover); }}
+                  title="Delete cover"
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              )}
+            </Box>
+          </>
+        )}
       </CardActions>
     </Card>
   );

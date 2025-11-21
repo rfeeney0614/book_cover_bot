@@ -1,4 +1,5 @@
 import './App.css';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -7,6 +8,10 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import Badge from '@mui/material/Badge';
+import WarningIcon from '@mui/icons-material/Warning';
+import { fetchAttentionItems } from './api/attention';
 import BooksIndex from './pages/BooksIndex';
 import BookShow from './pages/BookShow';
 import BooksNew from './pages/BooksNew';
@@ -19,6 +24,7 @@ import JobOrderShow from './pages/JobOrderShow';
 import PrintExportsIndex from './pages/PrintExportsIndex';
 import PrintExportShow from './pages/PrintExportShow';
 import PrintQueueIndex from './pages/PrintQueueIndex';
+import AttentionIndex from './pages/AttentionIndex';
 
 const theme = createTheme({
   palette: {
@@ -44,6 +50,23 @@ const theme = createTheme({
 
 function NavBar() {
   const location = useLocation();
+  const [attentionCount, setAttentionCount] = useState(0);
+  
+  useEffect(() => {
+    const loadAttentionCount = async () => {
+      try {
+        const data = await fetchAttentionItems();
+        setAttentionCount(data.count || 0);
+      } catch (err) {
+        console.error('Failed to fetch attention items:', err);
+      }
+    };
+    
+    loadAttentionCount();
+    // Refresh attention count every 30 seconds
+    const interval = setInterval(loadAttentionCount, 30000);
+    return () => clearInterval(interval);
+  }, []);
   
   const isActive = (path) => {
     if (path === '/books') {
@@ -62,7 +85,12 @@ function NavBar() {
           color="inherit" 
           component={Link} 
           to="/books"
-          sx={{ textDecoration: isActive('/books') ? 'underline' : 'none' }}
+          sx={{ 
+            textDecoration: isActive('/books') ? 'underline' : 'none',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            }
+          }}
         >
           Books
         </Button>
@@ -70,7 +98,12 @@ function NavBar() {
           color="inherit" 
           component={Link} 
           to="/covers"
-          sx={{ textDecoration: isActive('/covers') ? 'underline' : 'none' }}
+          sx={{ 
+            textDecoration: isActive('/covers') ? 'underline' : 'none',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            }
+          }}
         >
           Covers
         </Button>
@@ -78,7 +111,12 @@ function NavBar() {
           color="inherit" 
           component={Link} 
           to="/formats"
-          sx={{ textDecoration: isActive('/formats') ? 'underline' : 'none' }}
+          sx={{ 
+            textDecoration: isActive('/formats') ? 'underline' : 'none',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            }
+          }}
         >
           Formats
         </Button>
@@ -86,10 +124,33 @@ function NavBar() {
           color="inherit" 
           component={Link} 
           to="/print_queue"
-          sx={{ textDecoration: isActive('/print_queue') ? 'underline' : 'none' }}
+          sx={{ 
+            textDecoration: isActive('/print_queue') ? 'underline' : 'none',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            }
+          }}
         >
           Print Queue
         </Button>
+        {attentionCount > 0 && (
+          <IconButton 
+            color="inherit" 
+            component={Link} 
+            to="/attention"
+            title="Items need attention"
+            sx={{ 
+              ml: 1,
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              }
+            }}
+          >
+            <Badge badgeContent={attentionCount} color="error">
+              <WarningIcon />
+            </Badge>
+          </IconButton>
+        )}
       </Toolbar>
     </AppBar>
   );
@@ -114,6 +175,7 @@ function App() {
               <Route path="/formats" element={<FormatsIndex />} />
               <Route path="/formats/:id" element={<FormatShow />} />
               <Route path="/print_queue" element={<PrintQueueIndex />} />
+              <Route path="/attention" element={<AttentionIndex />} />
               <Route path="/job_orders" element={<JobOrdersIndex />} />
               <Route path="/job_orders/:id" element={<JobOrderShow />} />
               <Route path="/print_exports" element={<PrintExportsIndex />} />

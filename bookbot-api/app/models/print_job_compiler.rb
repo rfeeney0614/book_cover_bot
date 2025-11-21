@@ -52,14 +52,22 @@ class PrintJobCompiler
     end
     
     # Wait for all downloads to complete and build the cache
+    completed_downloads = 0
     download_threads.each do |thread|
       result = thread.value
-      downloaded_files[result[0]] = result[1] if result
+      if result
+        downloaded_files[result[0]] = result[1]
+        completed_downloads += 1
+        if export
+          export.progress_text = "Downloaded #{completed_downloads}/#{unique_jobs.count} cover images..."
+          export.save
+        end
+      end
     end
     download_time = Time.now - d_start
     
     if export
-      export.progress_text = "Processing #{jobs.count} covers..."
+      export.progress_text = "Processing covers for PDF..."
       export.save
     end
     
@@ -97,6 +105,7 @@ class PrintJobCompiler
     
     HexaPDF::Composer.create(pdf_path, page_size: :Letter, margin: 10) do |composer|
       bins.each_with_index do |bin, index|
+        processed_images = 0
         bin.items.sort_by { |b| [b[2], b[1]] }.each do |item|
           image = item[0]
           image_file = image.obj
@@ -110,6 +119,13 @@ class PrintJobCompiler
             image_file = rotated_cache[image_file]
           end
           composer.image(image_file, height: image.height - 2, width: image.width - 2, position: :float, margin: [2,2,2,2])
+          
+          processed_images += 1
+          # Update progress every 5 images or on last image
+          if export && (processed_images % 5 == 0 || processed_images == images_to_pack.count)
+            export.progress_text = "Processing #{processed_images}/#{images_to_pack.count} images..."
+            export.save
+          end
         end
       end
       composer.document.write(io)

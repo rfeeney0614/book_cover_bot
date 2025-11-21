@@ -34,6 +34,7 @@ Rails.application.routes.draw do
       end
     end
     get 'print_queue', to: 'print_queue#index'
+    get 'attention', to: 'attention#index'
   end
 
   get "/covers", to: "covers#index", as: :covers

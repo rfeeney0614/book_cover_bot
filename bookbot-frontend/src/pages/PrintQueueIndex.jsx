@@ -61,7 +61,7 @@ export default function PrintQueueIndex() {
         setErrorMessage('Unable to check export status');
         clearInterval(pollInterval);
       }
-    }, 2000);
+    }, 500);
 
     return () => clearInterval(pollInterval);
   }, [exportId, exportStatus]);

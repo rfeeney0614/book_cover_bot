@@ -10,8 +10,9 @@ import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
+import AddIcon from '@mui/icons-material/Add';
 import { fetchBook, updateBook } from '../api/book';
-import { fetchCoversForBook, fetchCover, updateCover, deleteCover } from '../api/covers';
+import { fetchCoversForBook, fetchCover, updateCover, deleteCover, createCover, uploadCoverImage } from '../api/covers';
 import { incrementJobOrder, decrementJobOrder } from '../api/printQueue';
 import { createJobOrder } from '../api/job_orders';
 import CoverList from '../components/CoverList';
@@ -34,6 +35,7 @@ export default function BookShow() {
     const [deleteOpen, setDeleteOpen] = useState(false);
     const [deletingCover, setDeletingCover] = useState(null);
     const [deleting, setDeleting] = useState(false);
+    const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -107,13 +109,32 @@ export default function BookShow() {
     setDeletingCover(null);
   };
 
-  const handleUpdateCover = async (payload) => {
+  const handleUpdateCover = async (payload, file) => {
     if (!editingCover) return;
     try {
       const updated = await updateCover(editingCover.id, payload);
+      if (file) {
+        await uploadCoverImage(editingCover.id, file);
+      }
       setCovers((cs) => cs.map((c) => (c.id === updated.id ? updated : c)));
       setEditingOpen(false);
       setEditingCover(null);
+      // Reload covers to get updated image
+      fetchCoversForBook(id).then((data) => setCovers(Array.isArray(data.covers) ? data.covers : data)).catch(() => {});
+    } catch (e) {
+      setError(e.message || String(e));
+    }
+  };
+
+  const handleCreateCover = async (payload, file) => {
+    try {
+      const created = await createCover({ ...payload, book_id: id });
+      if (file) {
+        await uploadCoverImage(created.id, file);
+      }
+      setCreating(false);
+      // Reload covers to get the new cover with image
+      fetchCoversForBook(id).then((data) => setCovers(Array.isArray(data.covers) ? data.covers : data)).catch(() => {});
     } catch (e) {
       setError(e.message || String(e));
     }
@@ -178,16 +199,33 @@ export default function BookShow() {
           </Paper>
 
           <Box>
-            <Typography variant="h5" component="h2" gutterBottom>
-              Associated Covers
-            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h5" component="h2">
+                Covers
+              </Typography>
+              <Button 
+                variant="contained" 
+                startIcon={<AddIcon />}
+                onClick={() => setCreating(true)}
+              >
+                New Cover
+              </Button>
+            </Box>
             {coversLoading ? (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <CircularProgress size={20} />
                 <Typography>Loading covers…</Typography>
               </Box>
             ) : (
-              <CoverList covers={covers} onEdit={openEditor} onDelete={openDeleteModal} onQuantityChange={async (jobOrderId, action) => {
+              <CoverList covers={covers} onEdit={openEditor} onDelete={openDeleteModal} onImageUpload={async (coverId, file) => {
+                setError(null);
+                try {
+                  await uploadCoverImage(coverId, file);
+                  fetchCoversForBook(id).then((data) => setCovers(Array.isArray(data.covers) ? data.covers : data)).catch(() => {});
+                } catch (e) {
+                  setError(e.message || String(e));
+                }
+              }} onQuantityChange={async (jobOrderId, action, coverId) => {
                 if (!jobOrderId) return;
                 setError(null);
                 try {
@@ -214,6 +252,10 @@ export default function BookShow() {
                 }
               }} />
             )}
+            
+            <Modal open={creating} onClose={() => setCreating(false)} title="New Cover" width={600}>
+              <CoverForm initial={{ book_id: id }} disableBookSelect={true} onCancel={() => setCreating(false)} onSubmit={handleCreateCover} />
+            </Modal>
             
             <Modal open={editingOpen} onClose={() => { setEditingOpen(false); setEditingCover(null); }} title={editingLoading ? 'Loading…' : 'Edit Cover'} width={600}>
               {editingCover ? (
