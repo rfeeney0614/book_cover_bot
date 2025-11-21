@@ -64,11 +64,11 @@ export default function BookCard({ book }) {
         </Box>
       )}
       <CardContent sx={{ flexGrow: 1 }}>
-        <Typography variant="h6" component="h3" gutterBottom>
+        <Typography variant="h6" component="h3" gutterBottom sx={{ fontWeight: 600, lineHeight: 1.2 }}>
           {title}
         </Typography>
         {author && (
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 400 }}>
             {author}
           </Typography>
         )}

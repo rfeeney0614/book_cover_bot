@@ -3,6 +3,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import CircularProgress from '@mui/material/CircularProgress';
 import { fetchBooks } from '../api/books';
+import { fetchBook } from '../api/books';
 
 export default function BookSelect({ value, onChange, placeholder = 'Select book...' }) {
   const [inputValue, setInputValue] = useState('');
@@ -17,10 +18,32 @@ export default function BookSelect({ value, onChange, placeholder = 'Select book
       return;
     }
     
+    // Check if book already in options
     const existingBook = options.find(b => b.id === value);
     if (existingBook) {
       setSelectedBook(existingBook);
+      return;
     }
+    
+    // If not in options yet, fetch the specific book
+    let active = true;
+    fetchBook(value)
+      .then((book) => {
+        if (!active) return;
+        setSelectedBook(book);
+        // Add to options if not already there
+        setOptions(prev => {
+          if (prev.some(b => b.id === book.id)) return prev;
+          return [book, ...prev];
+        });
+      })
+      .catch(() => {
+        // If fetch fails, try to find in existing options
+        const found = options.find(b => b.id === value);
+        if (found) setSelectedBook(found);
+      });
+    
+    return () => { active = false; };
   }, [value, options]);
 
   useEffect(() => {

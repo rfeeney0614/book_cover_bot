@@ -13,6 +13,17 @@ export async function fetchBooks({ page = 1, search = '' } = {}) {
   return res.json();
 }
 
+export async function fetchBook(id) {
+  const res = await fetch(`${API_BASE_URL}/api/books/${id}.json`, {
+    headers: { Accept: 'application/json' }
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`Failed to fetch book (${res.status}): ${text}`);
+  }
+  return res.json();
+}
+
 export async function createBook(book) {
   const res = await fetch(`${API_BASE_URL}/api/books.json`, {
     method: 'POST',

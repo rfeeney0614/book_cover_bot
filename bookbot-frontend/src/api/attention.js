@@ -1,7 +1,16 @@
 import { API_BASE_URL } from '../config';
 
-export async function fetchAttentionItems() {
-  const res = await fetch(`${API_BASE_URL}/api/attention.json`, {
+export async function fetchAttentionItems(page = 1, perPage = 20, filterType = 'all') {
+  const params = new URLSearchParams({ 
+    page: page.toString(), 
+    per_page: perPage.toString() 
+  });
+  
+  if (filterType && filterType !== 'all') {
+    params.append('type', filterType);
+  }
+  
+  const res = await fetch(`${API_BASE_URL}/api/attention.json?${params}`, {
     headers: { Accept: 'application/json' }
   });
   if (!res.ok) {

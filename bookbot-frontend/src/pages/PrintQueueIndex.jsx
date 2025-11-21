@@ -10,6 +10,7 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import { fetchPrintQueue, incrementJobOrder, decrementJobOrder } from '../api/printQueue';
 import { deleteJobOrder } from '../api/job_orders';
 import { triggerExport, checkExportStatus, getDownloadUrl } from '../api/printExport';
+import { uploadCoverImage } from '../api/covers';
 import PrintQueueItem from '../components/PrintQueueItem';
 import ExportModal from '../components/ExportModal';
 import Modal from '../components/Modal';
@@ -141,6 +142,51 @@ export default function PrintQueueIndex() {
     setErrorMessage(null);
   };
 
+  const handleImageUpload = async (coverId, file) => {
+    try {
+      // Optimistically update the queue with a preview URL
+      const previewUrl = URL.createObjectURL(file);
+      setQueue(prevQueue => 
+        prevQueue.map(item => 
+          item.id === coverId 
+            ? { ...item, image_url: previewUrl, thumb_url: previewUrl, _uploading: true }
+            : item
+        )
+      );
+
+      // Upload the image
+      const response = await uploadCoverImage(coverId, file);
+      
+      // Update with server URLs without full reload
+      setQueue(prevQueue => 
+        prevQueue.map(item => 
+          item.id === coverId
+            ? { 
+                ...item, 
+                image_url: response.image_url || previewUrl, 
+                thumb_url: response.thumb_url || previewUrl,
+                _uploading: false 
+              }
+            : item
+        )
+      );
+      
+      // Clean up the preview URL after a delay
+      setTimeout(() => URL.revokeObjectURL(previewUrl), 1000);
+    } catch (err) {
+      // Revert optimistic update on error
+      setQueue(prevQueue => 
+        prevQueue.map(item => 
+          item.id === coverId && item._uploading
+            ? { ...item, image_url: null, thumb_url: null, _uploading: false }
+            : item
+        )
+      );
+      setError(err.message);
+      throw err;
+    }
+  };
+
   // Sort queue: items with images first, then items without images
   const sortedQueue = [...queue].sort((a, b) => {
     const aHasImage = !!(a.image_url || a.thumb_url);
@@ -204,6 +250,7 @@ export default function PrintQueueIndex() {
               item={item} 
               onQuantityChange={handleQuantityChange}
               onDelete={openDeleteModal}
+              onImageUpload={handleImageUpload}
             />
           ))}
         </Box>

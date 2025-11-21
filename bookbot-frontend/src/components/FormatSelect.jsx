@@ -27,7 +27,7 @@ export default function FormatSelect({ value, onChange }) {
   return (
     <FormControl fullWidth variant="outlined" disabled={loading}>
       <Select
-        value={value || ''}
+        value={loading ? '' : (options.some(f => f.id === value) ? value : '')}
         onChange={e => onChange && onChange(e.target.value)}
         displayEmpty
         endAdornment={

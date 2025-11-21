@@ -69,7 +69,7 @@ module Api
 
     def update
       if @cover.update(cover_params)
-        render json: @cover
+        render json: cover_json(@cover)
       else
         render json: { errors: @cover.errors.full_messages }, status: :unprocessable_entity
       end

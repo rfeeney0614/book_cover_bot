@@ -90,6 +90,13 @@ export default function CoverCard(props) {
       onDrop={handleDrop}
       sx={{ position: 'relative' }}
     >
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleFileSelect}
+        style={{ display: 'none' }}
+        id={`cover-upload-${cover.id}`}
+      />
       {img ? (
         <CardMedia
           component="img"
@@ -100,17 +107,27 @@ export default function CoverCard(props) {
         />
       ) : (
         <Box
+          component="label"
+          htmlFor={`cover-upload-${cover.id}`}
           sx={{
             height: 160,
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
             bgcolor: 'grey.100',
             borderBottom: 1,
             borderColor: 'divider',
+            cursor: 'pointer',
+            '&:hover': {
+              bgcolor: 'grey.200',
+            },
           }}
         >
-          <BrokenImageIcon sx={{ fontSize: 48, color: 'grey.400' }} />
+          <CloudUploadIcon sx={{ fontSize: 48, color: 'grey.500', mb: 1 }} />
+          <Typography variant="caption" color="text.secondary">
+            Click or drag to upload
+          </Typography>
         </Box>
       )}
       {uploading && (
@@ -149,17 +166,17 @@ export default function CoverCard(props) {
         </Box>
       )}
       <CardContent>
-        <Typography variant="body2" color="text.primary" gutterBottom>
+        <Typography variant="h6" component="h3" color="text.primary" gutterBottom sx={{ fontWeight: 600, lineHeight: 1.2 }}>
           {cover.book_title || cover.book || 'Unknown book'}
         </Typography>
         {cover.edition && (
-          <Typography variant="caption" color="text.secondary" display="block">
-            Edition: {cover.edition}
+          <Typography variant="body2" color="text.primary" display="block" sx={{ fontWeight: 500, mb: 0.5 }}>
+            {cover.edition}
           </Typography>
         )}
         {cover.format_name && (
           <Typography variant="caption" color="text.secondary" display="block">
-            Format: {cover.format_name}
+            {cover.format_name}
           </Typography>
         )}
       </CardContent>
