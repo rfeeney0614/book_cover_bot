@@ -6,7 +6,7 @@
     "npm": ">=9.x"
   },
   "scripts": {
-    "build": "cd bookbot-frontend && npm install && npm run build && cd .. && bash bin/build-frontend.sh",
-    "heroku-postbuild": "npm run build && cp -r bookbot-api/Gemfile* . && cd bookbot-api && bundle install"
+    "build": "cd bookbot-frontend && npm install && npm run build",
+    "heroku-postbuild": "npm run build && cp -r bookbot-frontend/build/* bookbot-api/public/ && cp -r bookbot-api/Gemfile* . && cd bookbot-api && bundle install"
   }
 }
