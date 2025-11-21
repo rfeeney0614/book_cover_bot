@@ -76,9 +76,26 @@ function NavBar() {
   };
 
   return (
-    <AppBar position="static">
+    <AppBar 
+      position="static"
+      sx={{
+        backgroundImage: 'url(/bookshelf-bg.webp)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
       <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <Typography 
+          variant="h6" 
+          component="div" 
+          sx={{ 
+            flexGrow: 1,
+            textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+            fontWeight: 'bold',
+            letterSpacing: '0.5px',
+          }}
+        >
           WeeWordsWorkshop
         </Typography>
         <Button 
