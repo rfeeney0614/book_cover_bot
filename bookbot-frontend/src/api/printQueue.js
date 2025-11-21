@@ -1,4 +1,6 @@
-const API_BASE = '/api';
+import { API_BASE_URL } from '../config';
+
+const API_BASE = `${API_BASE_URL}/api`;
 
 export async function fetchPrintQueue() {
   const response = await fetch(`${API_BASE}/print_queue`);

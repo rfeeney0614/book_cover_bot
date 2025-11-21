@@ -33,7 +33,7 @@ export default function CoverShow() {
   };
 
   const handleDelete = async () => {
-    if (!confirm('Delete this cover?')) return;
+    if (!window.confirm('Delete this cover?')) return;
     try {
       await deleteCover(id);
       navigate('/covers');

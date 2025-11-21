@@ -30,7 +30,7 @@ export default function JobOrdersIndex() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Delete this print job?')) return;
+    if (!window.confirm('Delete this print job?')) return;
     try {
       await deleteJobOrder(id);
       load();

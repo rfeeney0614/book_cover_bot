@@ -30,7 +30,7 @@ export default function PrintExportsIndex() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Delete this export?')) return;
+    if (!window.confirm('Delete this export?')) return;
     try {
       await deletePrintExport(id);
       load();

@@ -1,8 +1,10 @@
+import { API_BASE_URL } from '../config';
+
 export async function fetchBooks({ page = 1, search = '' } = {}) {
   const qs = new URLSearchParams();
   if (page) qs.set('page', page);
   if (search) qs.set('search', search);
-  const url = `/api/books.json${qs.toString() ? `?${qs.toString()}` : ''}`;
+  const url = `${API_BASE_URL}/api/books.json${qs.toString() ? `?${qs.toString()}` : ''}`;
   const res = await fetch(url, { headers: { Accept: 'application/json' } });
   if (!res.ok) {
     const text = await res.text().catch(() => '');
@@ -12,7 +14,7 @@ export async function fetchBooks({ page = 1, search = '' } = {}) {
 }
 
 export async function createBook(book) {
-  const res = await fetch('/api/books.json', {
+  const res = await fetch(`${API_BASE_URL}/api/books.json`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

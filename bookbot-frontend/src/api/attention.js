@@ -1,5 +1,7 @@
+import { API_BASE_URL } from '../config';
+
 export async function fetchAttentionItems() {
-  const res = await fetch('/api/attention.json', {
+  const res = await fetch(`${API_BASE_URL}/api/attention.json`, {
     headers: { Accept: 'application/json' }
   });
   if (!res.ok) {

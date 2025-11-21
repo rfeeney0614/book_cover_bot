@@ -1,6 +1,8 @@
+import { API_BASE_URL } from '../config';
+
 export async function fetchCovers(params = {}) {
   const qs = new URLSearchParams(params).toString();
-  const url = `/api/covers.json${qs ? `?${qs}` : ''}`;
+  const url = `${API_BASE_URL}/api/covers.json${qs ? `?${qs}` : ''}`;
   const res = await fetch(url, { headers: { Accept: 'application/json' } });
   if (!res.ok) {
     const text = await res.text().catch(() => '');
@@ -11,7 +13,7 @@ export async function fetchCovers(params = {}) {
 
 export async function fetchCoversForBook(bookId) {
   // Assumes API supports /api/books/:id/covers.json or /api/covers.json?book_id=:id
-  const url = `/api/covers.json?book_id=${encodeURIComponent(bookId)}`;
+  const url = `${API_BASE_URL}/api/covers.json?book_id=${encodeURIComponent(bookId)}`;
   const res = await fetch(url, { headers: { Accept: 'application/json' } });
   if (!res.ok) {
     const text = await res.text().catch(() => '');
@@ -21,7 +23,7 @@ export async function fetchCoversForBook(bookId) {
 }
 
 export async function fetchCover(id) {
-  const res = await fetch(`/api/covers/${id}.json`, { headers: { Accept: 'application/json' } });
+  const res = await fetch(`${API_BASE_URL}/api/covers/${id}.json`, { headers: { Accept: 'application/json' } });
   if (!res.ok) {
     const text = await res.text().catch(() => '');
     throw new Error(`Failed to fetch cover (${res.status}): ${text}`);
@@ -30,7 +32,7 @@ export async function fetchCover(id) {
 }
 
 export async function createCover(payload) {
-  const res = await fetch(`/api/covers.json`, {
+  const res = await fetch(`${API_BASE_URL}/api/covers.json`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     body: JSON.stringify({ cover: payload }),
@@ -43,7 +45,7 @@ export async function createCover(payload) {
 }
 
 export async function updateCover(id, payload) {
-  const res = await fetch(`/api/covers/${id}.json`, {
+  const res = await fetch(`${API_BASE_URL}/api/covers/${id}.json`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     body: JSON.stringify({ cover: payload }),
@@ -56,7 +58,7 @@ export async function updateCover(id, payload) {
 }
 
 export async function deleteCover(id) {
-  const res = await fetch(`/api/covers/${id}.json`, { method: 'DELETE' });
+  const res = await fetch(`${API_BASE_URL}/api/covers/${id}.json`, { method: 'DELETE' });
   if (!res.ok) {
     const text = await res.text().catch(() => '');
     throw new Error(`Failed to delete cover (${res.status}): ${text}`);
@@ -68,7 +70,7 @@ export async function uploadCoverImage(id, file) {
   const formData = new FormData();
   formData.append('cover[image]', file);
   
-  const res = await fetch(`/api/covers/${id}.json`, {
+  const res = await fetch(`${API_BASE_URL}/api/covers/${id}.json`, {
     method: 'PATCH',
     body: formData,
   });
