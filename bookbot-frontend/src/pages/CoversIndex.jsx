@@ -30,6 +30,7 @@ export default function CoversIndex() {
   const [perPage, setPerPage] = useState(15);
   const [totalCount, setTotalCount] = useState(0);
   const [search, setSearch] = useState('');
+  const [queueLoading, setQueueLoading] = useState(new Set());
 
   const load = (opts = {}) => {
     // debug: log when load is invoked
@@ -185,8 +186,9 @@ export default function CoversIndex() {
         } catch (e) {
           setError(e.message || String(e));
         }
-      }} onQuantityChange={async (jobOrderId, action) => {
-        if (!jobOrderId) return;
+      }} onQuantityChange={async (jobOrderId, action, coverId) => {
+        if (!jobOrderId || queueLoading.has(coverId)) return;
+        setQueueLoading(prev => new Set(prev).add(coverId));
         setError(null);
         try {
           // optimistic update locally
@@ -202,8 +204,16 @@ export default function CoversIndex() {
           setError(e.message || String(e));
           // reload to recover correct state
           load();
+        } finally {
+          setQueueLoading(prev => {
+            const next = new Set(prev);
+            next.delete(coverId);
+            return next;
+          });
         }
       }} onAddToQueue={async (coverId) => {
+        if (queueLoading.has(coverId)) return;
+        setQueueLoading(prev => new Set(prev).add(coverId));
         setError(null);
         // optimistic: set print_quantity to 1 for the cover
         setCovers((cs) => cs.map((c) => (c.id === coverId ? { ...c, print_quantity: 1 } : c)));
@@ -214,8 +224,14 @@ export default function CoversIndex() {
         } catch (e) {
           setError(e.message || String(e));
           load();
+        } finally {
+          setQueueLoading(prev => {
+            const next = new Set(prev);
+            next.delete(coverId);
+            return next;
+          });
         }
-      }} />
+      }} queueLoading={queueLoading} />
       <Modal open={deleteOpen} onClose={cancelDelete} title="Confirm delete" width={520}>
         {deletingCover ? (
           <Box>

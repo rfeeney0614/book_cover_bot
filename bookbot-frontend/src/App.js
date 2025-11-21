@@ -30,7 +30,7 @@ const theme = createTheme({
     },
     background: {
       default: '#f5f1e8', // Cream/parchment color
-      paper: '#faf8f3',
+      paper: '#ffffff', // White for cards to stand out
     },
     text: {
       primary: '#3e2723', // Deep brown

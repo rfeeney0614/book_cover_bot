@@ -17,7 +17,7 @@ import BrokenImageIcon from '@mui/icons-material/BrokenImage';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 export default function CoverCard(props) {
-  const { cover, onOpen, onDelete, onImageUpload } = props;
+  const { cover, onOpen, onDelete, onImageUpload, isQueueLoading } = props;
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const dragCounter = React.useRef(0);
@@ -221,15 +221,17 @@ export default function CoverCard(props) {
             />
             <IconButton
               size="small"
-              onClick={(e) => { e.stopPropagation(); e.preventDefault(); props.onQuantityChange && props.onQuantityChange(cover.job_order_id, 'decrement'); }}
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); props.onQuantityChange && props.onQuantityChange(cover.job_order_id, 'decrement', cover.id); }}
               title="Decrease quantity"
+              disabled={isQueueLoading}
             >
               <RemoveIcon fontSize="small" />
             </IconButton>
             <IconButton
               size="small"
-              onClick={(e) => { e.stopPropagation(); e.preventDefault(); props.onQuantityChange && props.onQuantityChange(cover.job_order_id, 'increment'); }}
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); props.onQuantityChange && props.onQuantityChange(cover.job_order_id, 'increment', cover.id); }}
               title="Increase quantity"
+              disabled={isQueueLoading}
             >
               <AddIcon fontSize="small" />
             </IconButton>
@@ -240,6 +242,7 @@ export default function CoverCard(props) {
             variant="outlined"
             color="success"
             onClick={(e) => { e.stopPropagation(); e.preventDefault(); props.onAddToQueue && props.onAddToQueue(cover.id); }}
+            disabled={isQueueLoading}
           >
             Add to queue
           </Button>
