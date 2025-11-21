@@ -115,6 +115,12 @@ export default function CoverShow() {
               </Typography>
             )}
             
+            {cover.construction_model && (
+              <Typography variant="body1" gutterBottom>
+                <strong>Construction Model:</strong> {cover.construction_model}
+              </Typography>
+            )}
+            
             {cover.note && (
               <Box sx={{ mt: 2 }}>
                 <Typography variant="body2" color="text.secondary">

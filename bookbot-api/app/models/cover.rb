@@ -11,6 +11,11 @@ class Cover < ApplicationRecord
     return job_order.quantity
   end
 
+  def construction_model
+    return nil unless format.present? && book.present? && book.page_count.present?
+    format.construction_model_for_pages(book.page_count)
+  end
+
   def self.search(query)
     if query
       key = "%#{query.downcase}%"

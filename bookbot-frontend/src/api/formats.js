@@ -37,7 +37,14 @@ export async function updateFormat(id, payload) {
   const res = await fetch(`${API_BASE_URL}/api/formats/${id}.json`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({ format: payload }),
+    body: JSON.stringify({ 
+      format: {
+        name: payload.name,
+        height: payload.height,
+        default: payload.default
+      },
+      construction_mappings: payload.construction_mappings || []
+    }),
   });
   if (!res.ok) {
     const text = await res.text().catch(() => '');

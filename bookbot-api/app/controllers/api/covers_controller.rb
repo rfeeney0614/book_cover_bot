@@ -42,6 +42,7 @@ module Api
         book_title = cover.book&.title
         edition = cover.respond_to?(:edition) ? cover.edition : nil
         format_name = cover.format&.name
+        construction_model = cover.construction_model
         # include job order info when present so frontend can show queued counts
         job_order = cover.respond_to?(:job_order) ? cover.job_order : nil
         job_order_id = job_order&.id
@@ -53,6 +54,7 @@ module Api
           book_title: book_title,
           edition: edition,
           format_name: format_name,
+          construction_model: construction_model,
           job_order_id: job_order_id,
           print_quantity: job_order_id ? print_quantity : nil
         })

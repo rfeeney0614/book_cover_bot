@@ -179,6 +179,11 @@ export default function CoverCard(props) {
             {cover.format_name}
           </Typography>
         )}
+        {cover.construction_model && (
+          <Typography variant="caption" color="primary" display="block" sx={{ mt: 0.5, fontWeight: 500 }}>
+            Model: {cover.construction_model}
+          </Typography>
+        )}
       </CardContent>
     </Box>
   );
