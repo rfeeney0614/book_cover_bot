@@ -14,8 +14,25 @@ module Api
       total_count = relation.count
       books = relation.limit(per_page).offset(offset)
 
+      # Include a lightweight representative cover payload for each book (first cover) so
+      # frontend list views can show a thumbnail without making additional requests.
+      books_json = books.map do |b|
+        first_cover = b.covers.order(created_at: :asc).first
+        cover_info = nil
+        if first_cover&.image&.attached?
+          blob = first_cover.image.blob
+          cover_info = {
+            id: first_cover.id,
+            image_signed_id: blob.signed_id,
+            image_filename: blob.filename.to_s
+          }
+        end
+
+        b.as_json.merge({ cover: cover_info })
+      end
+
       render json: {
-        books: books,
+        books: books_json,
         page: page,
         per_page: per_page,
         total_count: total_count,

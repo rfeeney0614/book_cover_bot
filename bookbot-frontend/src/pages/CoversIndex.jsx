@@ -22,6 +22,7 @@ export default function CoversIndex() {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(15);
   const [totalCount, setTotalCount] = useState(0);
+  const [search, setSearch] = useState('');
 
   const load = (opts = {}) => {
     // debug: log when load is invoked
@@ -30,7 +31,7 @@ export default function CoversIndex() {
     setLoading(true);
     setError(null);
     const p = opts.page || page;
-    const s = opts.search !== undefined ? opts.search : undefined;
+    const s = opts.search !== undefined ? opts.search : search;
     fetchCovers({ page: p, search: s })
       .then((data) => {
         setCovers(Array.isArray(data.covers) ? data.covers : data);
@@ -134,7 +135,7 @@ export default function CoversIndex() {
       <div style={{ marginBottom: 12 }}>
         <button type="button" onClick={() => setCreating(true)}>New Cover</button>
       </div>
-      <SearchControls onSearch={(s) => { setPage(1); load({ page: 1, search: s }); }} placeholder="Search covers..." />
+      <SearchControls onSearch={(s) => { setSearch(s); setPage(1); load({ page: 1, search: s }); }} placeholder="Search covers..." />
       <div style={{ marginBottom: 12 }}>
         <span style={{ marginLeft: 12 }}>
           {loading ? <div>Loading…</div> : <div>{totalCount} results</div>}

@@ -4,23 +4,24 @@ import { MdBrokenImage } from 'react-icons/md';
 
 export default function CoverImage({ src, alt, style }) {
   return (
-    <div style={{ textAlign: 'center', marginBottom: 8 }}>
+    <div style={{ width: '100%', background: '#fafafa' }}>
       {src ? (
-        <img
-          src={src}
-          alt={alt}
-          style={{ maxWidth: 120, maxHeight: 120, borderRadius: 4, boxShadow: '0 1px 4px #ccc', ...style }}
-        />
+        <div style={{ width: '100%', height: 160, overflow: 'hidden' }}>
+          <img
+            src={src}
+            alt={alt}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' , borderRadius: 0, ...style }}
+          />
+        </div>
       ) : (
         <div
           style={{
-            width: 120,
-            height: 120,
+            width: '100%',
+            height: 160,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             border: '1px dashed #ccc',
-            borderRadius: 4,
             boxShadow: '0 1px 4px #ccc',
             ...style,
           }}
