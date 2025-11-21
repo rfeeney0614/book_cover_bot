@@ -63,3 +63,18 @@ export async function deleteCover(id) {
   }
   return true;
 }
+
+export async function uploadCoverImage(id, file) {
+  const formData = new FormData();
+  formData.append('cover[image]', file);
+  
+  const res = await fetch(`/api/covers/${id}.json`, {
+    method: 'PATCH',
+    body: formData,
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`Failed to upload image (${res.status}): ${text}`);
+  }
+  return res.json();
+}

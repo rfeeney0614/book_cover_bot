@@ -1,7 +1,15 @@
 import React from 'react';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
+import WarningIcon from '@mui/icons-material/Warning';
 
 export default function ExportModal({ isOpen, status, progressText, errorMessage, onClose }) {
-  if (!isOpen) return null;
 
   const getStatusMessage = () => {
     if (errorMessage) return errorMessage;
@@ -22,82 +30,49 @@ export default function ExportModal({ isOpen, status, progressText, errorMessage
   };
 
   const isProcessing = ['pending', 'processing'].includes(status);
+  const isFailed = status === 'failed';
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        padding: 32,
-        borderRadius: 8,
-        maxWidth: 400,
-        width: '90%',
-        textAlign: 'center',
-        border: status === 'failed' ? '3px solid #dc3545' : 'none'
-      }}>
-        <h2 style={{ 
-          marginTop: 0,
-          color: status === 'failed' ? '#dc3545' : '#333'
-        }}>
-          {status === 'failed' ? '⚠️ Export Failed' : 'Exporting Print Queue'}
-        </h2>
-        
+    <Dialog 
+      open={isOpen} 
+      onClose={isFailed ? onClose : undefined}
+      maxWidth="sm"
+      fullWidth
+    >
+      <DialogTitle sx={{ textAlign: 'center' }}>
+        {isFailed && <WarningIcon color="error" sx={{ fontSize: 40, mb: 1 }} />}
+        <Typography variant="h6" component="div">
+          {isFailed ? 'Export Failed' : 'Exporting Print Queue'}
+        </Typography>
+      </DialogTitle>
+      
+      <DialogContent sx={{ textAlign: 'center', py: 3 }}>
         {isProcessing && (
-          <div style={{ margin: '24px 0' }}>
-            <div style={{
-              width: 40,
-              height: 40,
-              border: '4px solid #f0f0f0',
-              borderTop: status === 'failed' ? '4px solid #dc3545' : '4px solid #333',
-              borderRadius: '50%',
-              margin: '0 auto',
-              animation: 'spin 1s linear infinite'
-            }} />
-            <style>{`
-              @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-              }
-            `}</style>
-          </div>
+          <Box sx={{ mb: 2 }}>
+            <CircularProgress />
+          </Box>
         )}
 
-        <p style={{ 
-          fontSize: 16, 
-          color: status === 'failed' ? '#dc3545' : '#666',
-          fontWeight: status === 'failed' ? 'bold' : 'normal'
-        }}>
+        <Typography 
+          variant="body1" 
+          color={isFailed ? 'error' : 'text.secondary'}
+          fontWeight={isFailed ? 'bold' : 'normal'}
+        >
           {getStatusMessage()}
-        </p>
+        </Typography>
+      </DialogContent>
 
-        {status === 'failed' && (
-          <button 
+      {isFailed && (
+        <DialogActions sx={{ justifyContent: 'center', pb: 2 }}>
+          <Button 
+            variant="contained"
+            color="error"
             onClick={onClose}
-            style={{
-              marginTop: 16,
-              padding: '8px 24px',
-              fontSize: 16,
-              cursor: 'pointer',
-              backgroundColor: '#dc3545',
-              color: 'white',
-              border: 'none',
-              borderRadius: 4
-            }}
           >
             Close
-          </button>
-        )}
-      </div>
-    </div>
+          </Button>
+        </DialogActions>
+      )}
+    </Dialog>
   );
 }

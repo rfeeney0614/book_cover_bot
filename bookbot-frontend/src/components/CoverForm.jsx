@@ -4,6 +4,7 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import BookSelect from './BookSelect';
 import FormatSelect from './FormatSelect';
 import { fetchFormats } from '../api/formats';
@@ -15,6 +16,7 @@ export default function CoverForm({ initial = {}, onCancel, onSubmit, disableBoo
     book_id: initial.book_id || '',
     format_id: initial.format_id || '',
   });
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -49,9 +51,16 @@ export default function CoverForm({ initial = {}, onCancel, onSubmit, disableBoo
     setForm((f) => ({ ...f, format_id: formatId }));
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
+
   const submit = (e) => {
     e.preventDefault();
-    onSubmit && onSubmit(form);
+    onSubmit && onSubmit(form, selectedFile);
   };
 
   return (
@@ -94,6 +103,30 @@ export default function CoverForm({ initial = {}, onCancel, onSubmit, disableBoo
             Format
           </Typography>
           <FormatSelect value={form.format_id} onChange={handleFormatSelect} />
+        </Box>
+        <Box>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            Cover Image
+          </Typography>
+          <Button
+            component="label"
+            variant="outlined"
+            startIcon={<CloudUploadIcon />}
+            fullWidth
+          >
+            {selectedFile ? selectedFile.name : 'Choose Image'}
+            <input
+              type="file"
+              hidden
+              accept="image/*"
+              onChange={handleFileChange}
+            />
+          </Button>
+          {selectedFile && (
+            <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+              Selected: {selectedFile.name}
+            </Typography>
+          )}
         </Box>
         <Box sx={{ display: 'flex', gap: 1 }}>
           <Button type="submit" variant="contained">Save</Button>

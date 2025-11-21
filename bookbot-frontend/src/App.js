@@ -1,5 +1,5 @@
 import './App.css';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import AppBar from '@mui/material/AppBar';
@@ -23,13 +23,77 @@ import PrintQueueIndex from './pages/PrintQueueIndex';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#1976d2',
+      main: '#5d4037', // Warm brown like aged leather
     },
     secondary: {
-      main: '#dc004e',
+      main: '#8d6e63', // Lighter warm brown
+    },
+    background: {
+      default: '#f5f1e8', // Cream/parchment color
+      paper: '#faf8f3',
+    },
+    text: {
+      primary: '#3e2723', // Deep brown
+      secondary: '#6d4c41',
     },
   },
+  typography: {
+    fontFamily: '"Georgia", "Times New Roman", serif',
+  },
 });
+
+function NavBar() {
+  const location = useLocation();
+  
+  const isActive = (path) => {
+    if (path === '/books') {
+      return location.pathname === '/' || location.pathname.startsWith('/books');
+    }
+    return location.pathname.startsWith(path);
+  };
+
+  return (
+    <AppBar position="static">
+      <Toolbar>
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          WeeWordsWorkshop
+        </Typography>
+        <Button 
+          color="inherit" 
+          component={Link} 
+          to="/books"
+          sx={{ textDecoration: isActive('/books') ? 'underline' : 'none' }}
+        >
+          Books
+        </Button>
+        <Button 
+          color="inherit" 
+          component={Link} 
+          to="/covers"
+          sx={{ textDecoration: isActive('/covers') ? 'underline' : 'none' }}
+        >
+          Covers
+        </Button>
+        <Button 
+          color="inherit" 
+          component={Link} 
+          to="/formats"
+          sx={{ textDecoration: isActive('/formats') ? 'underline' : 'none' }}
+        >
+          Formats
+        </Button>
+        <Button 
+          color="inherit" 
+          component={Link} 
+          to="/print_queue"
+          sx={{ textDecoration: isActive('/print_queue') ? 'underline' : 'none' }}
+        >
+          Print Queue
+        </Button>
+      </Toolbar>
+    </AppBar>
+  );
+}
 
 function App() {
   return (
@@ -37,22 +101,11 @@ function App() {
       <CssBaseline />
       <Router>
         <Box sx={{ flexGrow: 1 }}>
-          <AppBar position="static">
-            <Toolbar>
-              <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                BookBot
-              </Typography>
-              <Button color="inherit" component={Link} to="/">Home</Button>
-              <Button color="inherit" component={Link} to="/books">Books</Button>
-              <Button color="inherit" component={Link} to="/covers">Covers</Button>
-              <Button color="inherit" component={Link} to="/formats">Formats</Button>
-              <Button color="inherit" component={Link} to="/print_queue">Print Queue</Button>
-            </Toolbar>
-          </AppBar>
+          <NavBar />
 
           <Box component="main" sx={{ p: 3 }}>
             <Routes>
-              <Route path="/" element={<Home />} />
+              <Route path="/" element={<BooksIndex />} />
               <Route path="/books/new" element={<BooksNew />} />
               <Route path="/books" element={<BooksIndex />} />
               <Route path="/books/:id" element={<BookShow />} />
@@ -70,19 +123,6 @@ function App() {
         </Box>
       </Router>
     </ThemeProvider>
-  );
-}
-
-function Home() {
-  return (
-    <Box>
-      <Typography variant="h4" gutterBottom>
-        Welcome to BookBot
-      </Typography>
-      <Typography variant="body1">
-        Use the Books page to browse available books.
-      </Typography>
-    </Box>
   );
 }
 

@@ -1,4 +1,10 @@
 import React, { useState } from 'react';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 
 export default function FormatForm({ initial = {}, onSubmit, onCancel }) {
   const [name, setName] = useState(initial.name || '');
@@ -11,25 +17,37 @@ export default function FormatForm({ initial = {}, onSubmit, onCancel }) {
   };
 
   return (
-    <form onSubmit={submit} style={{ marginBottom: 12, minWidth: 320 }}>
-      <div style={{ marginBottom: 8 }}>
-        <label>Name</label>
-        <input value={name} onChange={(e) => setName(e.target.value)} style={{ width: '100%' }} />
-      </div>
-      <div style={{ marginBottom: 8 }}>
-        <label>Height</label>
-        <input type="number" value={height} onChange={(e) => setHeight(e.target.value)} style={{ width: '100%' }} />
-      </div>
-      <div style={{ marginBottom: 8 }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <input type="checkbox" checked={isDefault} onChange={e => setIsDefault(e.target.checked)} />
-          Default
-        </label>
-      </div>
-      <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
-        <button type="submit">Save</button>
-        <button type="button" onClick={onCancel}>Cancel</button>
-      </div>
-    </form>
+    <Box component="form" onSubmit={submit} sx={{ maxWidth: 720 }}>
+      <Stack spacing={2}>
+        <TextField
+          label="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          fullWidth
+          variant="outlined"
+        />
+        <TextField
+          label="Height"
+          type="number"
+          value={height}
+          onChange={(e) => setHeight(e.target.value)}
+          fullWidth
+          variant="outlined"
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={isDefault}
+              onChange={(e) => setIsDefault(e.target.checked)}
+            />
+          }
+          label="Default"
+        />
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button type="submit" variant="contained">Save</Button>
+          <Button type="button" onClick={onCancel} variant="outlined">Cancel</Button>
+        </Box>
+      </Stack>
+    </Box>
   );
 }

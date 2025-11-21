@@ -1,34 +1,67 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Button from '@mui/material/Button';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 
-export default function FormatCard({ format, onDelete, onSetDefault }) {
+export default function FormatCard({ format, onDelete, onSetDefault, onEdit }) {
   const handleDefaultChange = () => {
     if (!format.default && onSetDefault) {
       onSetDefault(format.id);
     }
   };
   return (
-    <div style={{ border: '1px solid #ddd', padding: 12, marginBottom: 8 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <strong>{format.name || `Format ${format.id}`}</strong>
-          <div style={{ fontSize: 12, color: '#666' }}>{format.description}</div>
-          <div style={{ fontSize: 13, color: '#444', marginTop: 4 }}>Height: {format.height ?? '—'}</div>
-          <label style={{ fontSize: 13, color: '#444', marginTop: 4, display: 'flex', alignItems: 'center' }}>
-            <input
-              type="checkbox"
-              checked={format.default === true || format.default === 1 || format.default === 'true'}
-              onChange={handleDefaultChange}
-              style={{ marginRight: 6 }}
+    <Card sx={{ mb: 1 }}>
+      <CardContent>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="h6" component="div">
+              {format.name || `Format ${format.id}`}
+            </Typography>
+            {format.description && (
+              <Typography variant="body2" color="text.secondary">
+                {format.description}
+              </Typography>
+            )}
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              Height: {format.height ?? '—'}
+            </Typography>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={format.default === true || format.default === 1 || format.default === 'true'}
+                  onChange={handleDefaultChange}
+                  size="small"
+                />
+              }
+              label={<Typography variant="body2">Default</Typography>}
+              sx={{ mt: 0.5 }}
             />
-            Default
-          </label>
-        </div>
-        <div>
-          <Link to={`/formats/${format.id}`} style={{ marginRight: 8 }}>Edit</Link>
-          <button onClick={() => onDelete && onDelete(format.id)}>Delete</button>
-        </div>
-      </div>
-    </div>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 0.5 }}>
+            <IconButton
+              onClick={() => onEdit && onEdit(format)}
+              size="small"
+              color="primary"
+            >
+              <EditIcon />
+            </IconButton>
+            <IconButton
+              onClick={() => onDelete && onDelete(format.id)}
+              size="small"
+              color="error"
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Box>
+        </Box>
+      </CardContent>
+    </Card>
   );
 }

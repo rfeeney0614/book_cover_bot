@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
+import IconButton from '@mui/material/IconButton';
+import Paper from '@mui/material/Paper';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import EditIcon from '@mui/icons-material/Edit';
 import { fetchBook, updateBook } from '../api/book';
 import { fetchCoversForBook, fetchCover, updateCover, deleteCover } from '../api/covers';
 import { incrementJobOrder, decrementJobOrder } from '../api/printQueue';
@@ -8,7 +18,6 @@ import CoverList from '../components/CoverList';
 import BookForm from '../components/BookForm';
 import CoverForm from '../components/CoverForm';
 import Modal from '../components/Modal';
-import Button from '../components/Button';
 
 export default function BookShow() {
   const { id } = useParams();
@@ -110,90 +119,139 @@ export default function BookShow() {
     }
   };
 
-  if (loading) return <div style={{ padding: 20 }}>Loading book…</div>;
-  if (error) return <div style={{ padding: 20, color: 'red' }}>Error: {error}</div>;
-  if (!book) return <div style={{ padding: 20 }}>Book not found.</div>;
+  if (loading) return (
+    <Container maxWidth="lg" sx={{ py: 3 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <CircularProgress size={20} />
+        <Typography>Loading book…</Typography>
+      </Box>
+    </Container>
+  );
+  
+  if (!book) return (
+    <Container maxWidth="lg" sx={{ py: 3 }}>
+      <Typography>Book not found.</Typography>
+    </Container>
+  );
 
   return (
-    <div style={{ padding: 20 }}>
-      <button onClick={() => navigate(-1)}>Back</button>
-      <h2>{book.title || 'Untitled'}</h2>
+    <Container maxWidth="lg" sx={{ py: 3 }}>
+      {error && <Alert severity="error" sx={{ mb: 2 }}>Error: {error}</Alert>}
+      
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+        <IconButton onClick={() => navigate(-1)} size="small">
+          <ArrowBackIcon />
+        </IconButton>
+        <Typography variant="h4" component="h1" sx={{ flex: 1 }}>
+          {book.title || 'Untitled'}
+        </Typography>
+        {!editing && (
+          <IconButton onClick={() => setEditing(true)} color="primary">
+            <EditIcon />
+          </IconButton>
+        )}
+      </Box>
+
       {!editing ? (
-        <div>
-          <div><strong>Author:</strong> {book.author}</div>
-          <div><strong>Page count:</strong> {book.page_count}</div>
-          <div><strong>Series:</strong> {book.series}</div>
-          <div style={{ marginTop: 12 }}><strong>Note:</strong>
-            <div style={{ whiteSpace: 'pre-wrap' }}>{book.note}</div>
-          </div>
-          <div style={{ marginTop: 12 }}>
-            <button onClick={() => setEditing(true)}>Edit</button>
-          </div>
-            <div style={{ marginTop: 24 }}>
-              <h3>Associated Covers</h3>
-                {coversLoading ? <div>Loading covers…</div> : <CoverList covers={covers} onEdit={openEditor} onDelete={openDeleteModal} onQuantityChange={async (jobOrderId, action) => {
-                  if (!jobOrderId) return;
-                  setError(null);
-                  try {
-                    setCovers((cs) => cs.map((c) => (c.job_order_id === jobOrderId ? { ...c, print_quantity: Math.max(0, (c.print_quantity || 0) + (action === 'increment' ? 1 : -1)) } : c)));
-                    const res = action === 'increment' ? await incrementJobOrder(jobOrderId) : await decrementJobOrder(jobOrderId);
-                    if (res.deleted) {
-                      setCovers((cs) => cs.map((c) => (c.job_order_id === res.id ? { ...c, job_order_id: null, print_quantity: 0 } : c)));
-                    } else {
-                      setCovers((cs) => cs.map((c) => (c.job_order_id === res.id ? { ...c, print_quantity: res.quantity } : c)));
-                    }
-                  } catch (e) {
-                    setError(e.message || String(e));
-                    // re-fetch covers on error
-                    fetchCoversForBook(id).then((data) => setCovers(Array.isArray(data.covers) ? data.covers : data)).catch(() => {});
+        <Box>
+          <Paper sx={{ p: 3, mb: 3 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+              <Box>
+                <Typography variant="body2" color="text.secondary">Author</Typography>
+                <Typography variant="body1">{book.author || '—'}</Typography>
+              </Box>
+              <Box>
+                <Typography variant="body2" color="text.secondary">Page count</Typography>
+                <Typography variant="body1">{book.page_count || '—'}</Typography>
+              </Box>
+              <Box>
+                <Typography variant="body2" color="text.secondary">Series</Typography>
+                <Typography variant="body1">{book.series || '—'}</Typography>
+              </Box>
+              {book.note && (
+                <Box>
+                  <Typography variant="body2" color="text.secondary" gutterBottom>Note</Typography>
+                  <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>{book.note}</Typography>
+                </Box>
+              )}
+            </Box>
+          </Paper>
+
+          <Box>
+            <Typography variant="h5" component="h2" gutterBottom>
+              Associated Covers
+            </Typography>
+            {coversLoading ? (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <CircularProgress size={20} />
+                <Typography>Loading covers…</Typography>
+              </Box>
+            ) : (
+              <CoverList covers={covers} onEdit={openEditor} onDelete={openDeleteModal} onQuantityChange={async (jobOrderId, action) => {
+                if (!jobOrderId) return;
+                setError(null);
+                try {
+                  setCovers((cs) => cs.map((c) => (c.job_order_id === jobOrderId ? { ...c, print_quantity: Math.max(0, (c.print_quantity || 0) + (action === 'increment' ? 1 : -1)) } : c)));
+                  const res = action === 'increment' ? await incrementJobOrder(jobOrderId) : await decrementJobOrder(jobOrderId);
+                  if (res.deleted) {
+                    setCovers((cs) => cs.map((c) => (c.job_order_id === res.id ? { ...c, job_order_id: null, print_quantity: 0 } : c)));
+                  } else {
+                    setCovers((cs) => cs.map((c) => (c.job_order_id === res.id ? { ...c, print_quantity: res.quantity } : c)));
                   }
-                }} onAddToQueue={async (coverId) => {
-                  setError(null);
-                  setCovers((cs) => cs.map((c) => (c.id === coverId ? { ...c, print_quantity: 1 } : c)));
-                  try {
-                    const created = await createJobOrder({ cover_id: coverId, quantity: 1 });
-                    setCovers((cs) => cs.map((c) => (c.id === coverId ? { ...c, job_order_id: created.id, print_quantity: created.quantity } : c)));
-                  } catch (e) {
-                    setError(e.message || String(e));
-                    fetchCoversForBook(id).then((data) => setCovers(Array.isArray(data.covers) ? data.covers : data)).catch(() => {});
-                  }
-                }} />}
-                <Modal open={editingOpen} onClose={() => { setEditingOpen(false); setEditingCover(null); }} title={editingLoading ? 'Loading…' : 'Edit Cover'} width={600}>
-                  {editingCover ? (
-                    <CoverForm initial={editingCover} disableBookSelect={true} onCancel={() => { setEditingOpen(false); setEditingCover(null); }} onSubmit={handleUpdateCover} />
-                  ) : (
-                    <div style={{ padding: 20 }}>{editingLoading ? 'Loading cover…' : 'No cover selected.'}</div>
-                  )}
-                </Modal>
-                <Modal open={deleteOpen} onClose={cancelDelete} title="Confirm delete" width={520}>
-                  <div style={{ padding: 12 }}>
-                    {deletingCover ? (
-                      <>
-                        <p>
-                          Are you sure you want to delete the cover for 
-                          <strong> "{deletingCover.book_title || deletingCover.book || 'Unknown book'}"</strong>
-                          {deletingCover.edition ? (
-                            <span> — Edition: <strong>{deletingCover.edition}</strong></span>
-                          ) : null}
-                          ?
-                        </p>
-                        <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
-                          <Button variant="destructive" size="md" onClick={confirmDelete} disabled={deleting}>
-                            {deleting ? 'Deleting…' : 'Delete'}
-                          </Button>
-                          <Button variant="secondary" size="md" onClick={cancelDelete}>Cancel</Button>
-                        </div>
-                      </>
-                    ) : (
-                      <div>Nothing selected.</div>
+                } catch (e) {
+                  setError(e.message || String(e));
+                  fetchCoversForBook(id).then((data) => setCovers(Array.isArray(data.covers) ? data.covers : data)).catch(() => {});
+                }
+              }} onAddToQueue={async (coverId) => {
+                setError(null);
+                setCovers((cs) => cs.map((c) => (c.id === coverId ? { ...c, print_quantity: 1 } : c)));
+                try {
+                  const created = await createJobOrder({ cover_id: coverId, quantity: 1 });
+                  setCovers((cs) => cs.map((c) => (c.id === coverId ? { ...c, job_order_id: created.id, print_quantity: created.quantity } : c)));
+                } catch (e) {
+                  setError(e.message || String(e));
+                  fetchCoversForBook(id).then((data) => setCovers(Array.isArray(data.covers) ? data.covers : data)).catch(() => {});
+                }
+              }} />
+            )}
+            
+            <Modal open={editingOpen} onClose={() => { setEditingOpen(false); setEditingCover(null); }} title={editingLoading ? 'Loading…' : 'Edit Cover'} width={600}>
+              {editingCover ? (
+                <CoverForm initial={editingCover} disableBookSelect={true} onCancel={() => { setEditingOpen(false); setEditingCover(null); }} onSubmit={handleUpdateCover} />
+              ) : (
+                <Box sx={{ py: 3, textAlign: 'center' }}>
+                  <Typography>{editingLoading ? 'Loading cover…' : 'No cover selected.'}</Typography>
+                </Box>
+              )}
+            </Modal>
+            
+            <Modal open={deleteOpen} onClose={cancelDelete} title="Confirm delete" width={520}>
+              {deletingCover ? (
+                <Box>
+                  <Typography variant="body1" gutterBottom>
+                    Are you sure you want to delete the cover for{' '}
+                    <strong>"{deletingCover.book_title || deletingCover.book || 'Unknown book'}"</strong>
+                    {deletingCover.edition && (
+                      <span> — Edition: <strong>{deletingCover.edition}</strong></span>
                     )}
-                  </div>
-                </Modal>
-            </div>
-        </div>
+                    ?
+                  </Typography>
+                  <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+                    <Button variant="contained" color="error" onClick={confirmDelete} disabled={deleting}>
+                      {deleting ? 'Deleting…' : 'Delete'}
+                    </Button>
+                    <Button variant="outlined" onClick={cancelDelete}>Cancel</Button>
+                  </Box>
+                </Box>
+              ) : (
+                <Typography>Nothing selected.</Typography>
+              )}
+            </Modal>
+          </Box>
+        </Box>
       ) : (
         <BookForm initial={book} onCancel={() => setEditing(false)} onSubmit={handleUpdate} />
       )}
-    </div>
+    </Container>
   );
 }

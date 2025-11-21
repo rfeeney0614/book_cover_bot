@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { fetchFormats, createFormat, deleteFormat } from '../api/formats';
+import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
+import AddIcon from '@mui/icons-material/Add';
+import { fetchFormats, createFormat, deleteFormat, updateFormat } from '../api/formats';
 import FormatList from '../components/FormatList';
 import FormatForm from '../components/FormatForm';
 import Modal from '../components/Modal';
@@ -9,6 +16,11 @@ export default function FormatsIndex() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [creating, setCreating] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editingFormat, setEditingFormat] = useState(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deletingFormat, setDeletingFormat] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   const load = () => {
     setLoading(true);
@@ -30,10 +42,43 @@ export default function FormatsIndex() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this format?')) return;
+  const openDeleteModal = (format) => {
+    setDeletingFormat(format);
+    setDeleteOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingFormat) return;
+    setDeleting(true);
+    setError(null);
     try {
-      await deleteFormat(id);
+      await deleteFormat(deletingFormat.id);
+      setDeleteOpen(false);
+      setDeletingFormat(null);
+      load();
+    } catch (e) {
+      setError(e.message || String(e));
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeleteOpen(false);
+    setDeletingFormat(null);
+  };
+
+  const handleEdit = (format) => {
+    setEditingFormat(format);
+    setEditing(true);
+  };
+
+  const handleUpdate = async (payload) => {
+    if (!editingFormat) return;
+    try {
+      await updateFormat(editingFormat.id, payload);
+      setEditing(false);
+      setEditingFormat(null);
       load();
     } catch (e) {
       setError(e.message || String(e));
@@ -70,15 +115,31 @@ export default function FormatsIndex() {
     }
   };
 
-  if (loading) return <div style={{ padding: 20 }}>Loading formats…</div>;
-  if (error) return <div style={{ padding: 20, color: 'red' }}>Error: {error}</div>;
+  if (loading) return (
+    <Container maxWidth="xl" sx={{ py: 3 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <CircularProgress size={20} />
+        <Typography>Loading formats…</Typography>
+      </Box>
+    </Container>
+  );
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>Formats</h2>
-      <div style={{ marginBottom: 12 }}>
-        <button type="button" onClick={() => setCreating(true)}>New Format</button>
-      </div>
+    <Container maxWidth="xl" sx={{ py: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h4" component="h1">
+          Formats
+        </Typography>
+        <Button 
+          variant="contained" 
+          startIcon={<AddIcon />}
+          onClick={() => setCreating(true)}
+        >
+          New Format
+        </Button>
+      </Box>
+
+      {error && <Alert severity="error" sx={{ mb: 2 }}>Error: {error}</Alert>}
 
       <Modal open={creating} onClose={() => setCreating(false)} title="New Format" width={400}>
         <FormatForm onCancel={() => setCreating(false)} onSubmit={async (payload) => {
@@ -91,7 +152,37 @@ export default function FormatsIndex() {
           }
         }} />
       </Modal>
-      <FormatList formats={formats} onDelete={handleDelete} onSetDefault={handleSetDefault} />
-    </div>
+
+      <Modal open={editing} onClose={() => { setEditing(false); setEditingFormat(null); }} title="Edit Format" width={400}>
+        {editingFormat && (
+          <FormatForm initial={editingFormat} onCancel={() => { setEditing(false); setEditingFormat(null); }} onSubmit={handleUpdate} />
+        )}
+      </Modal>
+
+      <Modal open={deleteOpen} onClose={cancelDelete} title="Confirm delete" width={520}>
+        {deletingFormat ? (
+          <Box>
+            <Typography variant="body1" gutterBottom>
+              Are you sure you want to delete the format{' '}
+              <strong>"{deletingFormat.name || 'Unknown format'}"</strong>
+              {deletingFormat.height && (
+                <span> (Height: <strong>{deletingFormat.height}</strong>)</span>
+              )}
+              ?
+            </Typography>
+            <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+              <Button variant="contained" color="error" onClick={confirmDelete} disabled={deleting}>
+                {deleting ? 'Deleting…' : 'Delete'}
+              </Button>
+              <Button variant="outlined" onClick={cancelDelete}>Cancel</Button>
+            </Box>
+          </Box>
+        ) : (
+          <Typography>Nothing selected.</Typography>
+        )}
+      </Modal>
+
+      <FormatList formats={formats} onDelete={openDeleteModal} onSetDefault={handleSetDefault} onEdit={handleEdit} />
+    </Container>
   );
 }

@@ -7,7 +7,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import Pagination from '@mui/material/Pagination';
 import AddIcon from '@mui/icons-material/Add';
-import { fetchCovers, createCover, deleteCover, fetchCover, updateCover } from '../api/covers';
+import { fetchCovers, createCover, deleteCover, fetchCover, updateCover, uploadCoverImage } from '../api/covers';
 import { incrementJobOrder, decrementJobOrder } from '../api/printQueue';
 import { createJobOrder } from '../api/job_orders';
 import CoverList from '../components/CoverList';
@@ -113,10 +113,13 @@ export default function CoversIndex() {
     }
   };
 
-  const handleUpdate = async (payload) => {
+  const handleUpdate = async (payload, file) => {
     if (!editingCover) return;
     try {
       await updateCover(editingCover.id, payload);
+      if (file) {
+        await uploadCoverImage(editingCover.id, file);
+      }
       setEditingOpen(false);
       setEditingCover(null);
       load();
@@ -159,18 +162,30 @@ export default function CoversIndex() {
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>Error: {error}</Alert>}
       <Modal open={creating} onClose={() => setCreating(false)} title="New Cover" width={600}>
-        <CoverForm onCancel={() => setCreating(false)} onSubmit={async (payload) => {
+        <CoverForm onCancel={() => setCreating(false)} onSubmit={async (payload, file) => {
           try {
             const created = await (await import('../api/covers')).createCover(payload);
+            if (file) {
+              await uploadCoverImage(created.id, file);
+            }
             setCovers((cs) => [created, ...cs]);
             setTotalCount((c) => c + 1);
             setCreating(false);
+            load();
           } catch (e) {
             setError(e.message || String(e));
           }
         }} />
       </Modal>
-      <CoverList covers={covers} onEdit={openEditor} onDelete={openDeleteModal} onQuantityChange={async (jobOrderId, action) => {
+      <CoverList covers={covers} onEdit={openEditor} onDelete={openDeleteModal} onImageUpload={async (coverId, file) => {
+        setError(null);
+        try {
+          await uploadCoverImage(coverId, file);
+          load();
+        } catch (e) {
+          setError(e.message || String(e));
+        }
+      }} onQuantityChange={async (jobOrderId, action) => {
         if (!jobOrderId) return;
         setError(null);
         try {
