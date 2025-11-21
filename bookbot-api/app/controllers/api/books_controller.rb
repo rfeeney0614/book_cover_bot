@@ -59,6 +59,16 @@ module Api
       end
     end
 
+    def export
+      @books = Book.order(:title)
+      
+      respond_to do |format|
+        format.xlsx do
+          response.headers['Content-Disposition'] = "attachment; filename=\"books_export_#{Date.today}.xlsx\""
+        end
+      end
+    end
+
     private
 
     def set_book

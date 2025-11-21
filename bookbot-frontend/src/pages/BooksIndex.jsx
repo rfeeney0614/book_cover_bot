@@ -7,11 +7,13 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import Pagination from '@mui/material/Pagination';
 import AddIcon from '@mui/icons-material/Add';
+import DownloadIcon from '@mui/icons-material/Download';
 import BookForm from '../components/BookForm';
 import Modal from '../components/Modal';
 import { fetchBooks } from '../api/books';
 import BookList from '../components/BookList';
 import SearchControls from '../components/SearchControls';
+import { API_BASE_URL } from '../config';
 
 export default function BooksIndex() {
   const [books, setBooks] = useState([]);
@@ -49,19 +51,32 @@ export default function BooksIndex() {
 
   const totalPages = Math.max(1, Math.ceil(totalCount / perPage));
 
+  const handleExport = () => {
+    window.location.href = `${API_BASE_URL}/api/books/export.xlsx`;
+  };
+
   return (
     <Container maxWidth="xl" sx={{ py: 3 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Typography variant="h4" component="h1">
           Books
         </Typography>
-        <Button 
-          variant="contained" 
-          startIcon={<AddIcon />}
-          onClick={() => setCreating(true)}
-        >
-          Add New Book
-        </Button>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button 
+            variant="outlined" 
+            startIcon={<DownloadIcon />}
+            onClick={handleExport}
+          >
+            Export to Excel
+          </Button>
+          <Button 
+            variant="contained" 
+            startIcon={<AddIcon />}
+            onClick={() => setCreating(true)}
+          >
+            Add New Book
+          </Button>
+        </Box>
       </Box>
 
       <Modal open={creating} onClose={() => setCreating(false)} title="New Book" width={800}>

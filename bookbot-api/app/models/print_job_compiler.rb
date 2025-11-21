@@ -104,8 +104,8 @@ class PrintJobCompiler
     puts "[PrintJobCompiler] Creating PDF with #{images_to_pack.count} image instances from #{downloaded_files.count} unique files"
     
     HexaPDF::Composer.create(pdf_path, page_size: :Letter, margin: 10) do |composer|
+      processed_images = 0  # Move counter outside the bins loop
       bins.each_with_index do |bin, index|
-        processed_images = 0
         bin.items.sort_by { |b| [b[2], b[1]] }.each do |item|
           image = item[0]
           image_file = image.obj
