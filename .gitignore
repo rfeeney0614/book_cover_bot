@@ -61,7 +61,7 @@ vendor/bundle
 # =========================
 # node modules and build outputs for frontend
 /bookbot-frontend/node_modules
-/bookbot-frontend/build
+# NOTE: /bookbot-frontend/build is committed for Heroku deployment
 
 # root node_modules (if accidentally present)
 /node_modules
