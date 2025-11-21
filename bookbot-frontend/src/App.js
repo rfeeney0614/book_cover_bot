@@ -76,24 +76,23 @@ function NavBar() {
   };
 
   return (
-    <AppBar 
-      position="static"
-      sx={{
-        backgroundImage: 'url(/bookshelf-bg.webp)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-      }}
-    >
+    <AppBar position="static">
       <Toolbar>
         <Typography 
           variant="h6" 
           component="div" 
           sx={{ 
             flexGrow: 1,
-            textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+            backgroundImage: 'url(/bookshelf-bg.webp)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backgroundClip: 'text',
+            WebkitBackgroundClip: 'text',
+            color: 'transparent',
             fontWeight: 'bold',
             letterSpacing: '0.5px',
+            display: 'inline-block',
           }}
         >
           WeeWordsWorkshop
