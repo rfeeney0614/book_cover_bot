@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Script to create all analytics issues in GitHub
 # Usage: ./create-analytics-issues.sh
 

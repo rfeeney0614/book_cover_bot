@@ -180,5 +180,5 @@ These issues are ready to be created in your GitHub repository. The templates pr
 
 ---
 
-*Generated: 2025-11-22*
+*Generated: 2024-11-22*
 *Repository: rfeeney0614/book_cover_bot*

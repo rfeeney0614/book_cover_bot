@@ -30,8 +30,11 @@ Add analytics to monitor print export performance, success rates, and identify i
 ```ruby
 # Migration
 add_column :print_exports, :started_at, :datetime
-add_column :print_exports, :status, :string, default: 'pending'
-add_index :print_exports, :status
+# Note: 'finished' boolean field already exists
+# Consider adding a more detailed status field if needed:
+# add_column :print_exports, :status, :string, default: 'pending'
+# Possible values: 'pending', 'running', 'completed', 'failed'
+# This would supplement the existing 'finished' boolean
 add_index :print_exports, :created_at
 ```
 

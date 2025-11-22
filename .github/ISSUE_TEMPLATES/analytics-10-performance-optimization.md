@@ -48,9 +48,10 @@ class AddAnalyticsIndexes < ActiveRecord::Migration[8.0]
     # Covers by book and format
     add_index :covers, [:book_id, :format_id]
     
-    # Books for full-text search (if needed)
-    add_index :books, :title, using: :gin, opclass: :gin_trgm_ops
-    add_index :books, :author, using: :gin, opclass: :gin_trgm_ops
+    # Books for full-text search (requires pg_trgm extension)
+    # First enable extension: enable_extension 'pg_trgm' if not already enabled
+    # add_index :books, :title, using: :gin, opclass: :gin_trgm_ops
+    # add_index :books, :author, using: :gin, opclass: :gin_trgm_ops
   end
 end
 ```
