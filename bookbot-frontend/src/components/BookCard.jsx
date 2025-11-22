@@ -3,11 +3,14 @@ import { Link } from 'react-router-dom';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
+import CardActions from '@mui/material/CardActions';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
 import BrokenImageIcon from '@mui/icons-material/BrokenImage';
+import DeleteIcon from '@mui/icons-material/Delete';
 
-export default function BookCard({ book }) {
+export default function BookCard({ book, onDelete }) {
   const title = book.title || book.name || 'Untitled';
   const author = book.author || book.authors || '';
 
@@ -24,22 +27,8 @@ export default function BookCard({ book }) {
   }
   img = img || book.cover_url || book.image_url || book.thumbnail_url || null;
 
-  return (
-    <Card 
-      component={Link} 
-      to={`/books/${book.id}`} 
-      sx={{ 
-        textDecoration: 'none', 
-        display: 'flex', 
-        flexDirection: 'column',
-        height: '100%',
-        transition: 'transform 0.2s, box-shadow 0.2s',
-        '&:hover': {
-          transform: 'translateY(-4px)',
-          boxShadow: 3,
-        },
-      }}
-    >
+  const content = (
+    <>
       {img ? (
         <CardMedia
           component="img"
@@ -73,6 +62,46 @@ export default function BookCard({ book }) {
           </Typography>
         )}
       </CardContent>
+    </>
+  );
+
+  return (
+    <Card 
+      sx={{ 
+        display: 'flex', 
+        flexDirection: 'column',
+        height: '100%',
+        transition: 'transform 0.2s, box-shadow 0.2s',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: 3,
+        },
+      }}
+    >
+      <Box
+        component={Link}
+        to={`/books/${book.id}`}
+        sx={{ textDecoration: 'none', color: 'inherit', flexGrow: 1, display: 'flex', flexDirection: 'column' }}
+      >
+        {content}
+      </Box>
+      
+      {onDelete && (
+        <CardActions sx={{ justifyContent: 'flex-end', px: 2, py: 1 }}>
+          <IconButton
+            size="small"
+            color="error"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onDelete(book);
+            }}
+            title="Delete book"
+          >
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </CardActions>
+      )}
     </Card>
   );
 }

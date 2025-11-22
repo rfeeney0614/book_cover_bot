@@ -14,3 +14,13 @@ export async function fetchBook(id) {
 export async function createBook(book) {
   return post('/api/books.json', { book });
 }
+
+export async function updateBook(id, book) {
+  const { put } = await import('./apiClient');
+  return put(`/api/books/${id}.json`, { book });
+}
+
+export async function deleteBook(id) {
+  const { del } = await import('./apiClient');
+  return del(`/api/books/${id}.json`);
+}

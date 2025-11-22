@@ -1,6 +1,6 @@
 module Api
   class BooksController < BaseController
-    before_action :set_book, only: [:show, :update]
+    before_action :set_book, only: [:show, :update, :destroy]
 
     def index
       relation = Book.search(params[:search])
@@ -50,6 +50,11 @@ module Api
       else
         render_errors(@book)
       end
+    end
+
+    def destroy
+      @book.destroy
+      head :no_content
     end
 
     def export
