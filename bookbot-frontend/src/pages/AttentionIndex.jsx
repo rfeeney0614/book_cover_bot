@@ -23,6 +23,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { fetchAttentionItems } from '../api/attention';
 import { uploadCoverImage, deleteCover } from '../api/covers';
+import { deleteBook } from '../api/books';
 
 export default function AttentionIndex() {
   const [items, setItems] = useState([]);
@@ -97,7 +98,11 @@ export default function AttentionIndex() {
     
     setDeleting(true);
     try {
-      await deleteCover(itemToDelete.cover_id);
+      if (itemToDelete.type === 'cover_missing_image') {
+        await deleteCover(itemToDelete.cover_id);
+      } else if (itemToDelete.type === 'book_missing_covers') {
+        await deleteBook(itemToDelete.book_id);
+      }
       setDeleteDialogOpen(false);
       setItemToDelete(null);
       // Reload the current page
@@ -228,6 +233,16 @@ export default function AttentionIndex() {
                       </Button>
                     </>
                   )}
+                  {item.type === 'book_missing_covers' && (
+                    <Button 
+                      onClick={() => handleDeleteClick(item)}
+                      variant="outlined"
+                      color="error"
+                      startIcon={<DeleteIcon />}
+                    >
+                      Delete Book
+                    </Button>
+                  )}
                   <Button 
                     component={Link} 
                     to={item.link}
@@ -260,10 +275,14 @@ export default function AttentionIndex() {
         onClose={handleDeleteCancel}
         TransitionProps={{ timeout: 0 }}
       >
-        <DialogTitle>Delete Cover?</DialogTitle>
+        <DialogTitle>
+          {itemToDelete?.type === 'book_missing_covers' ? 'Delete Book?' : 'Delete Cover?'}
+        </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete this cover? This action cannot be undone.
+            {itemToDelete?.type === 'book_missing_covers' 
+              ? 'Are you sure you want to delete this book and all its covers? This action cannot be undone.'
+              : 'Are you sure you want to delete this cover? This action cannot be undone.'}
           </DialogContentText>
           {itemToDelete && (
             <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.100', borderRadius: 1 }}>

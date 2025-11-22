@@ -8,10 +8,16 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContentText from '@mui/material/DialogContentText';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import { fetchBook, updateBook } from '../api/book';
+import { fetchBook, updateBook, deleteBook } from '../api/book';
 import { fetchCoversForBook, fetchCover, updateCover, deleteCover, createCover, uploadCoverImage } from '../api/covers';
 import { incrementJobOrder, decrementJobOrder } from '../api/printQueue';
 import { createJobOrder } from '../api/job_orders';
@@ -36,6 +42,8 @@ export default function BookShow() {
     const [deletingCover, setDeletingCover] = useState(null);
     const [deleting, setDeleting] = useState(false);
     const [creating, setCreating] = useState(false);
+    const [deleteBookOpen, setDeleteBookOpen] = useState(false);
+    const [deletingBook, setDeletingBook] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -66,6 +74,18 @@ export default function BookShow() {
       setEditing(false);
     } catch (err) {
       setError(err.message || String(err));
+    }
+  };
+
+  const handleDeleteBook = async () => {
+    setDeletingBook(true);
+    setError(null);
+    try {
+      await deleteBook(id);
+      navigate('/books');
+    } catch (err) {
+      setError(err.message || String(err));
+      setDeletingBook(false);
     }
   };
 
@@ -167,9 +187,14 @@ export default function BookShow() {
           {book.title || 'Untitled'}
         </Typography>
         {!editing && (
-          <IconButton onClick={() => setEditing(true)} color="primary">
-            <EditIcon />
-          </IconButton>
+          <>
+            <IconButton onClick={() => setEditing(true)} color="primary">
+              <EditIcon />
+            </IconButton>
+            <IconButton onClick={() => setDeleteBookOpen(true)} color="error">
+              <DeleteIcon />
+            </IconButton>
+          </>
         )}
       </Box>
 
@@ -294,6 +319,31 @@ export default function BookShow() {
       ) : (
         <BookForm initial={book} onCancel={() => setEditing(false)} onSubmit={handleUpdate} />
       )}
+
+      <Dialog
+        open={deleteBookOpen}
+        onClose={() => setDeleteBookOpen(false)}
+        TransitionProps={{ timeout: 0 }}
+      >
+        <DialogTitle>Delete Book</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete <strong>{book?.title}</strong>?
+            {book?.author && <> by <strong>{book.author}</strong></>}?
+            <Box sx={{ mt: 1 }}>
+              This will also delete all {covers.length} cover{covers.length !== 1 ? 's' : ''} associated with this book. This action cannot be undone.
+            </Box>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteBookOpen(false)} disabled={deletingBook}>
+            Cancel
+          </Button>
+          <Button onClick={handleDeleteBook} color="error" variant="contained" disabled={deletingBook}>
+            {deletingBook ? 'Deleting...' : 'Delete'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 }

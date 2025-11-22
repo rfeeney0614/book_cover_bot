@@ -11,7 +11,7 @@ Rails.application.routes.draw do
 
   # API routes only
   namespace :api do
-    resources :books, only: [:index, :show, :create, :update] do
+    resources :books, only: [:index, :show, :create, :update, :destroy] do
       collection do
         get :export
       end
