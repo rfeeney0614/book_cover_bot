@@ -12,6 +12,7 @@ class Cover < ApplicationRecord
   end
 
   def construction_model
+    return construction_model_override if construction_model_override.present?
     return nil unless format.present? && book.present? && book.page_count.present?
     format.construction_model_for_pages(book.page_count)
   end

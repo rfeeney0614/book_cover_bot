@@ -15,6 +15,7 @@ export default function CoverForm({ initial = {}, onCancel, onSubmit, disableBoo
     note: initial.note || '',
     book_id: initial.book_id || '',
     format_id: initial.format_id || '',
+    construction_model_override: initial.construction_model_override || '',
   });
   const [selectedFile, setSelectedFile] = useState(null);
 
@@ -104,6 +105,16 @@ export default function CoverForm({ initial = {}, onCancel, onSubmit, disableBoo
           </Typography>
           <FormatSelect value={form.format_id} onChange={handleFormatSelect} />
         </Box>
+        <TextField
+          label="Construction Model Override"
+          name="construction_model_override"
+          value={form.construction_model_override}
+          onChange={handleChange}
+          fullWidth
+          variant="outlined"
+          type="number"
+          helperText="Leave empty to use automatic calculation based on page count"
+        />
         <Box>
           <Typography variant="body2" color="text.secondary" gutterBottom>
             Cover Image
