@@ -26,6 +26,8 @@ export default function PrintQueueIndex() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletingItem, setDeletingItem] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [clearQueueOpen, setClearQueueOpen] = useState(false);
+  const [clearingQueue, setClearingQueue] = useState(false);
 
   useEffect(() => {
     loadQueue();
@@ -122,6 +124,29 @@ export default function PrintQueueIndex() {
   const cancelDelete = () => {
     setDeleteOpen(false);
     setDeletingItem(null);
+  };
+
+  const handleClearQueue = () => {
+    setClearQueueOpen(true);
+  };
+
+  const confirmClearQueue = async () => {
+    setClearingQueue(true);
+    try {
+      // Delete all job orders for covers that have images
+      const itemsWithImages = queue.filter(item => item.image_url || item.thumb_url);
+      await Promise.all(itemsWithImages.map(item => deleteJobOrder(item.job_order_id)));
+      await loadQueue();
+      setClearQueueOpen(false);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setClearingQueue(false);
+    }
+  };
+
+  const cancelClearQueue = () => {
+    setClearQueueOpen(false);
   };
 
   const handleExport = async () => {
@@ -223,6 +248,16 @@ export default function PrintQueueIndex() {
               Export to PDF
             </Button>
           )}
+          {queueWithImages.length > 0 && (
+            <Button
+              variant="outlined"
+              color="error"
+              onClick={handleClearQueue}
+              disabled={!!exportStatus || clearingQueue}
+            >
+              Clear Queue
+            </Button>
+          )}
         </Box>
       </Box>
 
@@ -277,6 +312,24 @@ export default function PrintQueueIndex() {
         ) : (
           <Typography>Nothing selected.</Typography>
         )}
+      </Modal>
+
+      <Modal open={clearQueueOpen} onClose={cancelClearQueue} title="Clear Print Queue" width={520}>
+        <Box>
+          <Typography variant="body1" gutterBottom>
+            Are you sure you want to clear all printable items from the queue?
+          </Typography>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            This will remove <strong>{queueWithImages.length} cover{queueWithImages.length !== 1 ? 's' : ''}</strong> ({totalItems} total print{totalItems !== 1 ? 's' : ''}) from the queue.
+            Items without images will remain.
+          </Typography>
+          <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+            <Button variant="contained" color="error" onClick={confirmClearQueue} disabled={clearingQueue}>
+              {clearingQueue ? 'Clearing…' : 'Clear Queue'}
+            </Button>
+            <Button variant="outlined" onClick={cancelClearQueue}>Cancel</Button>
+          </Box>
+        </Box>
       </Modal>
 
       <ExportModal 
