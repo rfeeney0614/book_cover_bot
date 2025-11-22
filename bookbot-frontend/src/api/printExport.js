@@ -1,4 +1,4 @@
-import { post, get } from './apiClient';
+import { get, post } from './apiClient';
 import { API_BASE_URL } from '../config';
 
 export async function triggerExport() {
