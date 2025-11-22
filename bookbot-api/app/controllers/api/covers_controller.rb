@@ -1,7 +1,5 @@
 module Api
-  class CoversController < ApplicationController
-    protect_from_forgery with: :null_session
-
+  class CoversController < BaseController
     before_action :set_cover, only: [:show, :update, :destroy]
 
     def index
@@ -11,18 +9,15 @@ module Api
         render json: covers.map { |cover| cover_json(cover) }
       else
         # True covers index: apply search and pagination
-        page = [params[:page].to_i, 1].max
-        per_page = 15
-        offset = (page - 1) * per_page
         relation = Cover.search(params[:search])
-        total_count = relation.count
-        covers = relation.order(created_at: :desc).limit(per_page).offset(offset)
+        pagination = paginate(relation)
+        covers = pagination[:items].order(created_at: :desc)
 
         render json: {
           covers: covers.map { |cover| cover_json(cover) },
-          page: page,
-          per_page: per_page,
-          total_count: total_count,
+          page: pagination[:page],
+          per_page: pagination[:per_page],
+          total_count: pagination[:total_count],
         }
       end
     end
@@ -65,7 +60,7 @@ module Api
       if @cover.save
         render json: @cover, status: :created
       else
-        render json: { errors: @cover.errors.full_messages }, status: :unprocessable_entity
+        render_errors(@cover)
       end
     end
 
@@ -73,7 +68,7 @@ module Api
       if @cover.update(cover_params)
         render json: cover_json(@cover)
       else
-        render json: { errors: @cover.errors.full_messages }, status: :unprocessable_entity
+        render_errors(@cover)
       end
     end
 

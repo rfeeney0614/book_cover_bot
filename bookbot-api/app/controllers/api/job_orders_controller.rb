@@ -1,7 +1,5 @@
 module Api
-  class JobOrdersController < ApplicationController
-    protect_from_forgery with: :null_session
-
+  class JobOrdersController < BaseController
     before_action :set_job_order, only: [:show, :destroy, :increment, :decrement]
 
     def index
@@ -18,7 +16,7 @@ module Api
       if @job_order.save
         render json: @job_order, status: :created
       else
-        render json: { errors: @job_order.errors.full_messages }, status: :unprocessable_entity
+        render_errors(@job_order)
       end
     end
 
@@ -27,7 +25,7 @@ module Api
       if @job_order.save
         render json: { id: @job_order.id, quantity: @job_order.quantity }
       else
-        render json: { errors: @job_order.errors.full_messages }, status: :unprocessable_entity
+        render_errors(@job_order)
       end
     end
 
@@ -39,7 +37,7 @@ module Api
       elsif @job_order.save
         render json: { id: @job_order.id, quantity: @job_order.quantity }
       else
-        render json: { errors: @job_order.errors.full_messages }, status: :unprocessable_entity
+        render_errors(@job_order)
       end
     end
 

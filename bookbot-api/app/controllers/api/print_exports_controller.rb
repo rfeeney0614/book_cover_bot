@@ -1,7 +1,5 @@
 module Api
-  class PrintExportsController < ApplicationController
-    protect_from_forgery with: :null_session
-
+  class PrintExportsController < BaseController
     before_action :set_print_export, only: [:show, :update, :destroy, :status, :download]
 
     def index
@@ -52,7 +50,7 @@ module Api
       if @print_export.save
         render json: @print_export, status: :created
       else
-        render json: { errors: @print_export.errors.full_messages }, status: :unprocessable_entity
+        render_errors(@print_export)
       end
     end
 
@@ -60,7 +58,7 @@ module Api
       if @print_export.update(print_export_params)
         render json: @print_export
       else
-        render json: { errors: @print_export.errors.full_messages }, status: :unprocessable_entity
+        render_errors(@print_export)
       end
     end
 

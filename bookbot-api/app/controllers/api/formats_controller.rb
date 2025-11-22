@@ -1,7 +1,5 @@
 module Api
-  class FormatsController < ApplicationController
-    protect_from_forgery with: :null_session
-
+  class FormatsController < BaseController
     before_action :set_format, only: [:show, :update, :destroy]
 
     def index
@@ -18,7 +16,7 @@ module Api
       if @format.save
         render json: @format, status: :created
       else
-        render json: { errors: @format.errors.full_messages }, status: :unprocessable_entity
+        render_errors(@format)
       end
     end
 
@@ -49,7 +47,7 @@ module Api
           render json: @format.as_json(include: { construction_mappings: { only: [:id, :min_pages, :max_pages, :construction_model] } })
         else
           Rails.logger.warn("Failed to update Format ##{@format.id}: #{@format.errors.full_messages.inspect}")
-          render json: { errors: @format.errors.full_messages }, status: :unprocessable_entity
+          render_errors(@format)
         end
       end
     rescue => e

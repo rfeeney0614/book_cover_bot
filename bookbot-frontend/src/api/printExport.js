@@ -1,20 +1,14 @@
+import { post, get } from './apiClient';
 import { API_BASE_URL } from '../config';
 
 const API_BASE = `${API_BASE_URL}/api`;
 
 export async function triggerExport() {
-  const response = await fetch(`${API_BASE}/print_exports/export`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' }
-  });
-  if (!response.ok) throw new Error('Failed to trigger export');
-  return response.json();
+  return post('/api/print_exports/export');
 }
 
 export async function checkExportStatus(exportId) {
-  const response = await fetch(`${API_BASE}/print_exports/${exportId}/status`);
-  if (!response.ok) throw new Error('Failed to check export status');
-  return response.json();
+  return get(`/api/print_exports/${exportId}/status`);
 }
 
 export function getDownloadUrl(exportId) {
