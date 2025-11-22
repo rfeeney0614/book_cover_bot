@@ -1,7 +1,5 @@
 module Api
-  class AttentionController < ApplicationController
-    protect_from_forgery with: :null_session
-
+  class AttentionController < BaseController
     def index
       page = (params[:page] || 1).to_i
       per_page = (params[:per_page] || 20).to_i

@@ -1,18 +1,11 @@
 module Api
-  class BooksController < ApplicationController
-    # For JSON API endpoints we don't use the Rails session or CSRF tokens from the browser.
-    # Use null_session to avoid Origin header mismatches for requests coming from the React dev server.
-    protect_from_forgery with: :null_session
-
+  class BooksController < BaseController
     before_action :set_book, only: [:show, :update]
 
     def index
-      page = [params[:page].to_i, 1].max
-      per_page = 15
-      offset = (page - 1) * per_page
       relation = Book.search(params[:search])
-      total_count = relation.count
-      books = relation.limit(per_page).offset(offset)
+      pagination = paginate(relation)
+      books = pagination[:items]
 
       # Include a lightweight representative cover payload for each book (first cover) so
       # frontend list views can show a thumbnail without making additional requests.
@@ -32,9 +25,9 @@ module Api
 
       render json: {
         books: books_json,
-        page: page,
-        per_page: per_page,
-        total_count: total_count,
+        page: pagination[:page],
+        per_page: pagination[:per_page],
+        total_count: pagination[:total_count],
       }
     end
 
@@ -47,7 +40,7 @@ module Api
       if @book.save
         render json: @book, status: :created
       else
-        render json: { errors: @book.errors.full_messages }, status: :unprocessable_entity
+        render_errors(@book)
       end
     end
 
@@ -55,7 +48,7 @@ module Api
       if @book.update(book_params)
         render json: @book
       else
-        render json: { errors: @book.errors.full_messages }, status: :unprocessable_entity
+        render_errors(@book)
       end
     end
 
