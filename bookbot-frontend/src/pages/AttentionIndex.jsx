@@ -245,14 +245,19 @@ export default function AttentionIndex() {
                     <Box sx={{ flexShrink: 0 }}>
                       {getIcon(item.type)}
                     </Box>
-                    <Box sx={{ flexGrow: 1 }}>
-                      <Typography variant="h6" gutterBottom>
-                        {item.title}
+                  <Box sx={{ flexGrow: 1 }}>
+                    <Typography variant="h6" gutterBottom>
+                      {item.title}
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary">
+                      {item.description}
+                    </Typography>
+                    {item.type === 'cover_missing_image' && item.construction_model && (
+                      <Typography variant="body2" color="primary" fontWeight="medium" sx={{ mt: 1 }}>
+                        Model: {item.construction_model}
                       </Typography>
-                      <Typography variant="body1" color="text.secondary">
-                        {item.description}
-                      </Typography>
-                    </Box>
+                    )}
+                  </Box>
                   </Box>
                   {draggingCoverId === item.cover_id && (
                     <Box

@@ -209,6 +209,11 @@ function PrintQueueItem({ item, onQuantityChange, onDelete, onImageUpload }) {
                 Format: {item.format_name}
               </Typography>
             )}
+            {item.construction_model && (
+              <Typography variant="body2" color="primary" fontWeight="medium">
+                Model: {item.construction_model}
+              </Typography>
+            )}
           </Box>
 
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
