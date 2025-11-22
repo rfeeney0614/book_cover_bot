@@ -16,6 +16,7 @@ class Api::PrintQueueController < ApplicationController
         book_author: cover.book.author,
         format_id: cover.format_id,
         format_name: cover.format&.name,
+        construction_model: cover.construction_model,
         print_quantity: cover.job_order.quantity,
         job_order_id: cover.job_order.id,
         image_url: cover.image.attached? ? url_for(cover.image) : nil,
