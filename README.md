@@ -455,7 +455,7 @@ npm install --save package_name
 2. **Deploy**
    ```bash
    heroku create your-app-name
-   heroku addons:create heroku-postgresql:mini
+   heroku addons:create heroku-postgresql:essential-0
    git push heroku main
    heroku run bundle exec rails db:migrate
    heroku run bundle exec rails db:seed
