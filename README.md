@@ -2,6 +2,24 @@
 
 A full-stack web application for managing book cover printing operations. This application helps organize books, their cover editions, print formats, and job orders, with integrated PDF export functionality for print production.
 
+## 🚀 Quick Start
+
+Get up and running in 3 commands:
+
+```bash
+# Clone and enter directory
+git clone https://github.com/rfeeney0614/book_cover_bot.git
+cd book_cover_bot
+
+# Start with Docker (recommended)
+docker compose up --build
+
+# In a new terminal, initialize database
+docker compose exec web bundle exec rails db:create db:migrate db:seed
+```
+
+Then open http://localhost:3000 in your browser!
+
 ## 📋 Table of Contents
 
 - [Features](#-features)
@@ -16,6 +34,7 @@ A full-stack web application for managing book cover printing operations. This a
 - [Architecture](#-architecture)
 - [Development](#-development)
 - [Deployment](#-deployment)
+- [Troubleshooting](#-troubleshooting)
 - [Contributing](#-contributing)
 - [License](#-license)
 
@@ -482,6 +501,111 @@ kamal deploy
 # Check status
 kamal app details
 ```
+
+## 🔍 Troubleshooting
+
+### Common Issues
+
+#### Docker Issues
+
+**Problem**: `Error: Cannot connect to the Docker daemon`
+```bash
+# Solution: Ensure Docker is running
+sudo systemctl start docker  # Linux
+# Or start Docker Desktop on Mac/Windows
+```
+
+**Problem**: Port 3000 or 5432 already in use
+```bash
+# Solution: Change ports in docker-compose.yml or stop conflicting services
+docker compose down
+sudo lsof -i :3000  # Find process using port
+sudo kill -9 <PID>  # Kill the process
+```
+
+**Problem**: Database connection errors
+```bash
+# Solution: Ensure database is created and migrated
+docker compose exec web bundle exec rails db:create db:migrate
+```
+
+#### Rails Issues
+
+**Problem**: `ActiveRecord::PendingMigrationError`
+```bash
+# Solution: Run pending migrations
+bundle exec rails db:migrate
+```
+
+**Problem**: Missing master key
+```bash
+# Solution: Generate or obtain the master key
+# Either get it from your team or regenerate:
+bundle exec rails credentials:edit
+```
+
+**Problem**: ImageMagick not installed (for local development)
+```bash
+# Solution: Install ImageMagick
+# Mac:
+brew install imagemagick
+
+# Ubuntu/Debian:
+sudo apt-get install imagemagick libmagickwand-dev
+
+# Windows: Download from https://imagemagick.org/
+```
+
+#### Frontend Issues
+
+**Problem**: `Module not found` errors
+```bash
+# Solution: Reinstall dependencies
+cd bookbot-frontend
+rm -rf node_modules package-lock.json
+npm install
+```
+
+**Problem**: React app can't connect to API
+```bash
+# Solution: Check REACT_APP_API_HOST and REACT_APP_API_PORT
+# Also verify CORS is configured in Rails (rack-cors gem)
+```
+
+**Problem**: Build fails with memory error
+```bash
+# Solution: Increase Node memory
+NODE_OPTIONS=--max_old_space_size=4096 npm run build
+```
+
+#### Background Job Issues
+
+**Problem**: Jobs not processing
+```bash
+# Solution: Ensure Solid Queue worker is running
+bundle exec rake solid_queue:start
+
+# Or check worker in Docker:
+docker compose logs solid_queue_worker
+```
+
+**Problem**: Job stuck in "processing" state
+```bash
+# Solution: Check Mission Control Jobs dashboard
+# Visit http://localhost:3000/jobs
+# Or check logs for errors
+```
+
+### Getting Help
+
+If you encounter issues not listed here:
+1. Check the application logs (`bookbot-api/log/development.log`)
+2. Review Docker logs (`docker compose logs`)
+3. Search existing GitHub issues
+4. Create a new issue with:
+   - Error message
+   - Steps to reproduce
+   - Environment details (OS, Docker version, etc.)
 
 ## 📝 Contributing
 
