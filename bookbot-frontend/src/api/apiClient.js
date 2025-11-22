@@ -37,31 +37,41 @@ export async function get(endpoint, params = {}) {
 /**
  * Perform POST request
  */
-export async function post(endpoint, data) {
+export async function post(endpoint, data = null) {
   const url = `${API_BASE_URL}${endpoint}`;
-  return apiRequest(url, {
+  const options = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     },
-    body: JSON.stringify(data),
-  });
+  };
+
+  if (data !== null && data !== undefined) {
+    options.body = JSON.stringify(data);
+  }
+
+  return apiRequest(url, options);
 }
 
 /**
  * Perform PUT request
  */
-export async function put(endpoint, data) {
+export async function put(endpoint, data = null) {
   const url = `${API_BASE_URL}${endpoint}`;
-  return apiRequest(url, {
+  const options = {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     },
-    body: JSON.stringify(data),
-  });
+  };
+
+  if (data !== null && data !== undefined) {
+    options.body = JSON.stringify(data);
+  }
+
+  return apiRequest(url, options);
 }
 
 /**
@@ -78,7 +88,7 @@ export async function patch(endpoint, body = null, contentType = 'application/js
     headers,
   };
 
-  if (body !== null) {
+  if (body !== null && body !== undefined) {
     options.body = contentType === 'application/json' ? JSON.stringify(body) : body;
   }
 
