@@ -57,7 +57,7 @@ Then open http://localhost:3000 in your browser!
 
 ### Backend
 - **Ruby** 3.3.6
-- **Rails** 8.0.0+
+- **Rails** ~> 8.0.0
 - **PostgreSQL** 17 (production database)
 - **SQLite** 3 (development/test database option)
 - **Puma** web server
@@ -75,7 +75,7 @@ Then open http://localhost:3000 in your browser!
 
 ### Frontend
 - **React** 19.2.0
-- **React Router** 6.14.1
+- **React Router** ^6.14.1
 - **Material-UI (MUI)** 7.3.5
 - **React Icons** 5.5.0
 - **Node.js** 18.x+
@@ -195,7 +195,7 @@ Create a `.env` file in the project root or set these in your environment:
 
 ```bash
 # Database
-DATABASE_URL=postgres://postgres:password@localhost:5432/book_bot
+DATABASE_URL=postgres://postgres:<your_secure_password>@localhost:5432/book_bot
 RAILS_MASTER_KEY=<your_master_key>
 SECRET_KEY_BASE=<your_secret_key>
 
@@ -455,6 +455,7 @@ npm install --save package_name
 2. **Deploy**
    ```bash
    heroku create your-app-name
+   # Check available PostgreSQL plans: heroku addons:plans heroku-postgresql
    heroku addons:create heroku-postgresql:essential-0
    git push heroku main
    heroku run bundle exec rails db:migrate
