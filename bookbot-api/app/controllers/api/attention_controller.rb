@@ -22,6 +22,7 @@ module Api
             description: "#{cover.book&.title || 'Unknown book'} - #{cover.edition || 'No edition'}",
             cover_id: cover.id,
             book_id: cover.book_id,
+            construction_model: cover.construction_model,
             link: "/covers/#{cover.id}"
           }
         end

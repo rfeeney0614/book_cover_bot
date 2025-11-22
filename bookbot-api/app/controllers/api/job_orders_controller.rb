@@ -3,8 +3,28 @@ module Api
     before_action :set_job_order, only: [:show, :destroy, :increment, :decrement]
 
     def index
-      job_orders = JobOrder.order(created_at: :desc).limit(200)
-      render json: job_orders
+      job_orders = JobOrder.includes(cover: [:book, :format, image_attachment: :blob]).order(created_at: :desc).limit(200)
+      
+      items = job_orders.map do |job_order|
+        cover = job_order.cover
+        image_url = cover.image.attached? ? url_for(cover.image) : nil
+        thumb_url = cover.image.attached? ? (url_for(cover.image.variant(:thumb)) rescue image_url) : nil
+        
+        {
+          id: cover.id,
+          job_order_id: job_order.id,
+          book_title: cover.book&.title,
+          book_author: cover.book&.author,
+          edition: cover.edition,
+          format_name: cover.format&.name,
+          construction_model: cover.construction_model,
+          print_quantity: job_order.quantity,
+          image_url: image_url,
+          thumb_url: thumb_url
+        }
+      end
+      
+      render json: items
     end
 
     def show
