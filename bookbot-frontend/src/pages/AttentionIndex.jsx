@@ -19,6 +19,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import WarningIcon from '@mui/icons-material/Warning';
 import ImageIcon from '@mui/icons-material/Image';
 import BookIcon from '@mui/icons-material/Book';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { fetchAttentionItems } from '../api/attention';
@@ -39,6 +40,7 @@ export default function AttentionIndex() {
   const [itemToDelete, setItemToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [uploadingCoverId, setUploadingCoverId] = useState(null);
+  const [draggingCoverId, setDraggingCoverId] = useState(null);
   const perPage = 20;
 
   useEffect(() => {
@@ -80,6 +82,45 @@ export default function AttentionIndex() {
     try {
       await uploadCoverImage(coverId, file);
       // Reload the current page
+      await loadItems();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setUploadingCoverId(null);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDragEnter = (e, coverId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDraggingCoverId(coverId);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Only clear if we're leaving the card entirely
+    if (e.currentTarget === e.target) {
+      setDraggingCoverId(null);
+    }
+  };
+
+  const handleDrop = async (e, coverId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDraggingCoverId(null);
+    
+    const file = e.dataTransfer.files?.[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    
+    setUploadingCoverId(coverId);
+    try {
+      await uploadCoverImage(coverId, file);
       await loadItems();
     } catch (err) {
       setError(err.message);
@@ -186,7 +227,19 @@ export default function AttentionIndex() {
 
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {filteredItems.map((item, index) => (
-              <Card key={`${item.type}-${item.id}-${index}`}>
+              <Card 
+                key={`${item.type}-${item.id}-${index}`}
+                onDragOver={item.type === 'cover_missing_image' ? handleDragOver : undefined}
+                onDragEnter={item.type === 'cover_missing_image' ? (e) => handleDragEnter(e, item.cover_id) : undefined}
+                onDragLeave={item.type === 'cover_missing_image' ? handleDragLeave : undefined}
+                onDrop={item.type === 'cover_missing_image' ? (e) => handleDrop(e, item.cover_id) : undefined}
+                sx={{
+                  position: 'relative',
+                  border: draggingCoverId === item.cover_id ? '3px dashed' : undefined,
+                  borderColor: draggingCoverId === item.cover_id ? 'primary.main' : undefined,
+                  bgcolor: draggingCoverId === item.cover_id ? 'action.hover' : undefined,
+                }}
+              >
                 <CardContent>
                   <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
                     <Box sx={{ flexShrink: 0 }}>
@@ -201,6 +254,24 @@ export default function AttentionIndex() {
                       </Typography>
                     </Box>
                   </Box>
+                  {draggingCoverId === item.cover_id && (
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        bgcolor: 'rgba(25, 118, 210, 0.1)',
+                        pointerEvents: 'none',
+                      }}
+                    >
+                      <CloudUploadIcon sx={{ fontSize: 48, color: 'primary.main' }} />
+                    </Box>
+                  )}
                 </CardContent>
                 <CardActions>
                   {item.type === 'cover_missing_image' && (
@@ -222,6 +293,15 @@ export default function AttentionIndex() {
                         disabled={uploadingCoverId === item.cover_id}
                       >
                         {uploadingCoverId === item.cover_id ? 'Uploading...' : 'Upload Image'}
+                      </Button>
+                      <Button 
+                        component={Link}
+                        to={`/books/${item.book_id}`}
+                        variant="outlined"
+                        color="primary"
+                        startIcon={<MenuBookIcon />}
+                      >
+                        View Book
                       </Button>
                       <Button 
                         onClick={() => handleDeleteClick(item)}
