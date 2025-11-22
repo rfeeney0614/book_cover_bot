@@ -27,5 +27,6 @@ export async function deleteCover(id) {
 export async function uploadCoverImage(id, file) {
   const formData = new FormData();
   formData.append('cover[image]', file);
-  return patch(`/api/covers/${id}.json`, formData, 'multipart/form-data');
+  // Don't set content type - browser will set it automatically with boundary
+  return patch(`/api/covers/${id}.json`, formData, 'form-data');
 }
