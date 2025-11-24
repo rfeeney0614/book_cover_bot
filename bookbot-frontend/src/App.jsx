@@ -26,6 +26,7 @@ import PrintExportShow from './pages/PrintExportShow';
 import PrintQueueIndex from './pages/PrintQueueIndex';
 import AttentionIndex from './pages/AttentionIndex';
 
+// Theme configuration with warm brown tones
 const theme = createTheme({
   palette: {
     primary: {

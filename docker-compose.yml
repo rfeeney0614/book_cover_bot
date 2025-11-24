@@ -42,21 +42,14 @@ services:
     build:
       context: ./bookbot-frontend
       dockerfile: Dockerfile
-    command: npm start
+    command: npm run dev -- --host 0.0.0.0
     environment:
-      - CHOKIDAR_USEPOLLING=true # helpful in some Docker setups for file watching
-      - HOST=0.0.0.0
-      - BROWSER=none
-      - NODE_ENV=development
-      - REACT_APP_API_HOST=localhost
-      - REACT_APP_API_PORT=3000
-      - FAST_REFRESH=false # Disable fast refresh to avoid websocket issues in Docker
-      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
     ports:
-      - "3001:3000" # Map container 3000 to host 3001 for optional dev server access
+      - "5173:5173"
     volumes:
-      - ./bookbot-frontend:/app:delegated
-      - frontend_node_modules:/app/node_modules
+      - ./bookbot-frontend:/app
+      - /app/node_modules
     depends_on:
       - web
     profiles:
