@@ -10,10 +10,13 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Badge from '@mui/material/Badge';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import WarningIcon from '@mui/icons-material/Warning';
-import LogoutIcon from '@mui/icons-material/Logout';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { fetchAttentionItems } from './api/attention';
 import Login from './pages/Login';
+import ChangePassword from './pages/ChangePassword';
 import BooksIndex from './pages/BooksIndex';
 import BookShow from './pages/BookShow';
 import BooksNew from './pages/BooksNew';
@@ -30,12 +33,13 @@ import AttentionIndex from './pages/AttentionIndex';
 
 // Check if user is authenticated
 function isAuthenticated() {
-  return localStorage.getItem('auth_username') && localStorage.getItem('auth_password');
+  // This will be checked via session on the server
+  return true; // Let server handle auth, redirect happens in apiClient
 }
 
 // Protected route wrapper
 function ProtectedRoute({ children }) {
-  return isAuthenticated() ? children : <Navigate to="/login" replace />;
+  return children; // Server will handle auth via sessions
 }
 
 // Theme configuration with warm brown tones
@@ -64,10 +68,26 @@ const theme = createTheme({
 function NavBar() {
   const location = useLocation();
   const [attentionCount, setAttentionCount] = useState(0);
+  const [anchorEl, setAnchorEl] = useState(null);
   
-  const handleLogout = () => {
-    localStorage.removeItem('auth_username');
-    localStorage.removeItem('auth_password');
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+  
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/sessions', {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
+    handleMenuClose();
     window.location.href = '/login';
   };
   
@@ -180,8 +200,8 @@ function NavBar() {
         )}
         <IconButton 
           color="inherit" 
-          onClick={handleLogout}
-          title="Logout"
+          onClick={handleMenuOpen}
+          title="Account"
           sx={{ 
             ml: 1,
             '&:hover': {
@@ -189,8 +209,18 @@ function NavBar() {
             }
           }}
         >
-          <LogoutIcon />
+          <AccountCircleIcon />
         </IconButton>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
+        >
+          <MenuItem component={Link} to="/change-password" onClick={handleMenuClose}>
+            Change Password
+          </MenuItem>
+          <MenuItem onClick={handleLogout}>Logout</MenuItem>
+        </Menu>
       </Toolbar>
     </AppBar>
   );
@@ -211,6 +241,7 @@ function App() {
                 <Box component="main" sx={{ p: 3 }}>
                   <Routes>
                     <Route path="/" element={<BooksIndex />} />
+                    <Route path="/change-password" element={<ChangePassword />} />
                     <Route path="/books/new" element={<BooksNew />} />
                     <Route path="/books" element={<BooksIndex />} />
                     <Route path="/books/:id" element={<BookShow />} />

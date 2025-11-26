@@ -14,24 +14,20 @@ export default function Login() {
     setLoading(true);
 
     try {
-      // Test the credentials by making a simple API request
-      const authHeader = 'Basic ' + btoa(`${username}:${password}`);
-      const response = await fetch('/api/books', {
+      const response = await fetch('/api/sessions', {
+        method: 'POST',
         headers: {
-          'Authorization': authHeader,
-          'Accept': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ username, password })
       });
 
       if (response.ok) {
-        // Store credentials in localStorage
-        localStorage.setItem('auth_username', username);
-        localStorage.setItem('auth_password', password);
         navigate('/');
-      } else if (response.status === 401) {
-        setError('Invalid username or password');
       } else {
-        setError('Login failed. Please try again.');
+        const data = await response.json();
+        setError(data.error || 'Login failed. Please try again.');
       }
     } catch (err) {
       setError('Connection error. Please try again.');

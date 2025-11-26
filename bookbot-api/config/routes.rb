@@ -11,6 +11,18 @@ Rails.application.routes.draw do
 
   # API routes only
   namespace :api do
+    # Authentication
+    post 'sessions', to: 'sessions#create'
+    delete 'sessions', to: 'sessions#destroy'
+    get 'sessions/current', to: 'sessions#current'
+    
+    # User management
+    resources :users, only: [] do
+      member do
+        patch :password, action: :update_password
+      end
+    end
+    
     resources :books, only: [:index, :show, :create, :update, :destroy] do
       collection do
         get :export

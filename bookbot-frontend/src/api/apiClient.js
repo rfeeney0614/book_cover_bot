@@ -1,36 +1,16 @@
 import { API_BASE_URL } from '../config';
 
 /**
- * Get stored authentication credentials
- */
-function getAuthHeader() {
-  const username = localStorage.getItem('auth_username');
-  const password = localStorage.getItem('auth_password');
-  if (username && password) {
-    return 'Basic ' + btoa(`${username}:${password}`);
-  }
-  return null;
-}
-
-/**
  * Generic API request handler with consistent error handling
  */
 async function apiRequest(url, options = {}) {
-  // Add authentication header if available
-  const authHeader = getAuthHeader();
-  if (authHeader) {
-    options.headers = {
-      ...options.headers,
-      'Authorization': authHeader
-    };
-  }
-
+  // Include credentials for session cookies
+  options.credentials = 'include';
+  
   const res = await fetch(url, options);
   
-  // Handle 401 Unauthorized - clear stored credentials
+  // Handle 401 Unauthorized - redirect to login
   if (res.status === 401) {
-    localStorage.removeItem('auth_username');
-    localStorage.removeItem('auth_password');
     window.location.href = '/login';
     throw new Error('Authentication required');
   }
