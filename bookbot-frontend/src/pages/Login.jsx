@@ -1,5 +1,37 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Box from '@mui/material/Box';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Alert from '@mui/material/Alert';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+
+// Use same theme as main app
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#5d4037', // Warm brown like aged leather
+    },
+    secondary: {
+      main: '#8d6e63', // Lighter warm brown
+    },
+    background: {
+      default: '#f5f1e8', // Cream/parchment color
+      paper: '#ffffff', // White for cards to stand out
+    },
+    text: {
+      primary: '#3e2723', // Deep brown
+      secondary: '#6d4c41',
+    },
+  },
+  typography: {
+    fontFamily: '"Georgia", "Times New Roman", serif',
+  },
+});
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -37,95 +69,80 @@ export default function Login() {
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      minHeight: '100vh',
-      backgroundColor: '#f5f5f5'
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        padding: '2rem',
-        borderRadius: '8px',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-        width: '100%',
-        maxWidth: '400px'
-      }}>
-        <h1 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>Book Bot Login</h1>
-        
-        {error && (
-          <div style={{
-            padding: '0.75rem',
-            marginBottom: '1rem',
-            backgroundColor: '#fee',
-            color: '#c00',
-            borderRadius: '4px',
-            border: '1px solid #fcc'
-          }}>
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-              Username
-            </label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              autoFocus
-              style={{
-                width: '100%',
-                padding: '0.5rem',
-                fontSize: '1rem',
-                border: '1px solid #ccc',
-                borderRadius: '4px'
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+          backgroundColor: 'background.default',
+        }}
+      >
+        <Card sx={{ maxWidth: 500, width: '100%', m: 2 }}>
+          <CardContent sx={{ p: 4 }}>
+            <Typography 
+              variant="h4" 
+              component="h1" 
+              gutterBottom 
+              align="center"
+              sx={{ 
+                mb: 3,
+                fontWeight: 'bold',
+                letterSpacing: '0.5px',
               }}
-            />
-          </div>
+            >
+              WeeWordsWorkshop
+            </Typography>
+            
+            {error && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {error}
+              </Alert>
+            )}
 
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              style={{
-                width: '100%',
-                padding: '0.5rem',
-                fontSize: '1rem',
-                border: '1px solid #ccc',
-                borderRadius: '4px'
-              }}
-            />
-          </div>
+            <form onSubmit={handleSubmit}>
+              <TextField
+                label="Username"
+                fullWidth
+                margin="normal"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                autoFocus
+                autoComplete="username"
+              />
 
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              fontSize: '1rem',
-              fontWeight: 'bold',
-              color: 'white',
-              backgroundColor: loading ? '#999' : '#007bff',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: loading ? 'not-allowed' : 'pointer'
-            }}
-          >
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
-      </div>
-    </div>
+              <TextField
+                label="Password"
+                type="password"
+                fullWidth
+                margin="normal"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+                sx={{ mb: 3 }}
+              />
+
+              <Button
+                type="submit"
+                variant="contained"
+                fullWidth
+                size="large"
+                disabled={loading}
+                sx={{ 
+                  py: 1.5,
+                  fontWeight: 'bold',
+                }}
+              >
+                {loading ? 'Logging in...' : 'Login'}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </Box>
+    </ThemeProvider>
   );
 }

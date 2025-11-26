@@ -41,7 +41,12 @@ module BookCoverBot
     # config.eager_load_paths << Rails.root.join("extras")
     # Run as API-only app to remove non-API middleware. Keep controllers/views
     # in the repo for reference while we build out the API.
-    config.api_only = true
+    config.api_only = false
+    
+    # Enable sessions for authentication
+    config.session_store :cookie_store, key: '_bookbot_session', same_site: :lax, secure: false
+    config.middleware.use ActionDispatch::Cookies
+    config.middleware.use ActionDispatch::Session::CookieStore
 
     # Some third-party engines (eg. mission_control-jobs) still reference
     # `config.assets` during initialization. Provide a minimal placeholder

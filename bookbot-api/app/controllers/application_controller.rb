@@ -23,7 +23,7 @@ class ApplicationController < ActionController::Base
   def require_login
     unless logged_in?
       respond_to do |format|
-        format.html { redirect_to login_path }
+        format.html { render file: 'public/index.html', layout: false }
         format.json { render json: { error: 'Unauthorized' }, status: :unauthorized }
       end
     end
@@ -36,3 +36,4 @@ class ApplicationController < ActionController::Base
     request.path == "/api/sessions" ||
     request.path.start_with?("/assets")
   end
+end

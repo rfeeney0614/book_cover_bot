@@ -12,6 +12,13 @@ export default defineConfig({
     port: 5173,
     watch: {
       usePolling: true
+    },
+    proxy: {
+      '/api': {
+        target: 'http://web:3000',
+        changeOrigin: true,
+        secure: false,
+      }
     }
   },
   esbuild: {
