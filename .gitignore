@@ -40,17 +40,8 @@ vendor/bundle
 
 # Propshaft / asset builds
 /bookbot-api/app/assets/builds
-/bookbot-api/public/assets
 
-# React build output copied to Rails public directory
-/bookbot-api/public/index.html
-/bookbot-api/public/manifest.json
-/bookbot-api/public/asset-manifest.json
-/bookbot-api/public/static/
-/bookbot-api/public/robots.txt
-/bookbot-api/public/favicon.ico
-/bookbot-api/public/logo192.png
-/bookbot-api/public/logo512.png
+# Note: React build files in /bookbot-api/public/ are now committed for Heroku deployment
 
 # Yarn/npm lockfiles - keep package-lock if you want reproducible frontend builds;
 # if you prefer to ignore lockfiles, uncomment the next line.

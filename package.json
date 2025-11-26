@@ -7,6 +7,6 @@
   },
   "scripts": {
     "build": "cd bookbot-frontend && npm install && npm run build",
-    "heroku-postbuild": "npm run build && cp -r bookbot-frontend/build/* bookbot-api/public/ && cp -r bookbot-api/Gemfile* ."
+    "heroku-postbuild": "cp -r bookbot-frontend/build/* bookbot-api/public/ && cp -r bookbot-api/Gemfile* ."
   }
 }
