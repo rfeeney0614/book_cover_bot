@@ -7,7 +7,21 @@ class Api::SessionsController < ApplicationController
     user = User.find_by(username: params[:username])
     
     if user&.authenticate(params[:password])
+      # Regenerate session ID to prevent session fixation attacks
+      reset_session
       session[:user_id] = user.id
+      
+      # Set session expiry based on remember_me
+      if params[:remember_me]
+        # Remember for 2 weeks, renew on each request (sliding expiration)
+        request.session_options[:expire_after] = 2.weeks
+        request.session_options[:renew] = true
+      else
+        # Standard session - expires when browser closes
+        request.session_options[:expire_after] = nil
+        request.session_options[:renew] = false
+      end
+      
       render json: { 
         success: true, 
         user: { id: user.id, username: user.username } 

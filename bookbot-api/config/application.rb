@@ -44,7 +44,12 @@ module BookCoverBot
     config.api_only = false
     
     # Enable sessions for authentication
-    config.session_store :cookie_store, key: '_bookbot_session', same_site: :lax, secure: false
+    config.session_store :cookie_store, 
+      key: '_bookbot_session', 
+      same_site: :lax,
+      secure: Rails.env.production?, # Secure cookies in production (HTTPS only)
+      httponly: true,                 # Prevent JavaScript access (XSS protection)
+      expire_after: 2.weeks           # Default expiry, can be overridden per-session
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use ActionDispatch::Session::CookieStore
 
