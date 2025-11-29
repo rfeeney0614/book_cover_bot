@@ -10,6 +10,11 @@ import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogActions from '@mui/material/DialogActions';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
@@ -20,6 +25,8 @@ export default function CoverCard(props) {
   const { cover, onOpen, onDelete, onImageUpload, isQueueLoading } = props;
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [pendingFile, setPendingFile] = useState(null);
   const dragCounter = React.useRef(0);
   // Covers do not have a title
   const img = cover.image_url || cover.thumb_url || cover.thumbnail_url || null;
@@ -57,13 +64,13 @@ export default function CoverCard(props) {
 
     const files = e.dataTransfer.files;
     if (files && files[0] && files[0].type.startsWith('image/')) {
-      setUploading(true);
-      try {
-        await onImageUpload?.(cover.id, files[0]);
-      } catch (err) {
-        console.error('Upload failed:', err);
-      } finally {
-        setUploading(false);
+      // If cover already has an image, show confirmation dialog
+      if (img) {
+        setPendingFile(files[0]);
+        setConfirmDialogOpen(true);
+      } else {
+        // No existing image, upload directly
+        await uploadImage(files[0]);
       }
     }
   };
@@ -71,15 +78,41 @@ export default function CoverCard(props) {
   const handleFileSelect = async (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      setUploading(true);
-      try {
-        await onImageUpload?.(cover.id, file);
-      } catch (err) {
-        console.error('Upload failed:', err);
-      } finally {
-        setUploading(false);
+      // If cover already has an image, show confirmation dialog
+      if (img) {
+        setPendingFile(file);
+        setConfirmDialogOpen(true);
+      } else {
+        // No existing image, upload directly
+        await uploadImage(file);
       }
     }
+    // Reset file input
+    e.target.value = '';
+  };
+
+  const uploadImage = async (file) => {
+    setUploading(true);
+    try {
+      await onImageUpload?.(cover.id, file);
+    } catch (err) {
+      console.error('Upload failed:', err);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleConfirmReplace = async () => {
+    setConfirmDialogOpen(false);
+    if (pendingFile) {
+      await uploadImage(pendingFile);
+      setPendingFile(null);
+    }
+  };
+
+  const handleCancelReplace = () => {
+    setConfirmDialogOpen(false);
+    setPendingFile(null);
   };
 
   const content = (
@@ -325,6 +358,26 @@ export default function CoverCard(props) {
           </>
         )}
       </CardActions>
+
+      <Dialog
+        open={confirmDialogOpen}
+        onClose={handleCancelReplace}
+      >
+        <DialogTitle>Replace Existing Image?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            This cover already has an image. Do you want to replace it with the new image?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelReplace} color="inherit">
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmReplace} variant="contained" color="primary" autoFocus>
+            Replace
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Card>
   );
 }

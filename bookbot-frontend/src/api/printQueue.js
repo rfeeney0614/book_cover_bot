@@ -1,7 +1,7 @@
 import { get, patch } from './apiClient';
 
-export async function fetchPrintQueue() {
-  return get('/api/print_queue');
+export async function fetchPrintQueue(sortBy = 'date_added') {
+  return get(`/api/print_queue?sort_by=${sortBy}`);
 }
 
 export async function incrementJobOrder(jobOrderId) {

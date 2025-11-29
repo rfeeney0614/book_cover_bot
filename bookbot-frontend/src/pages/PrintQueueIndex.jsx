@@ -6,6 +6,10 @@ import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import Chip from '@mui/material/Chip';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import { fetchPrintQueue, incrementJobOrder, decrementJobOrder } from '../api/printQueue';
 import { deleteJobOrder } from '../api/job_orders';
@@ -19,6 +23,7 @@ export default function PrintQueueIndex() {
   const [queue, setQueue] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [sortBy, setSortBy] = useState('date_added');
   const [exportStatus, setExportStatus] = useState(null);
   const [exportId, setExportId] = useState(null);
   const [progressText, setProgressText] = useState(null);
@@ -31,7 +36,7 @@ export default function PrintQueueIndex() {
 
   useEffect(() => {
     loadQueue();
-  }, []);
+  }, [sortBy]);
 
   useEffect(() => {
     if (!exportId || !exportStatus || exportStatus === 'completed' || exportStatus === 'failed') {
@@ -73,7 +78,7 @@ export default function PrintQueueIndex() {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchPrintQueue();
+      const data = await fetchPrintQueue(sortBy);
       setQueue(data.print_queue || []);
     } catch (err) {
       setError(err.message);
@@ -212,18 +217,19 @@ export default function PrintQueueIndex() {
     }
   };
 
+  // Calculate counts only for items with images
+  const queueWithImages = queue.filter(item => item.image_url || item.thumb_url);
+  const totalItems = queueWithImages.reduce((sum, item) => sum + item.print_quantity, 0);
+  const coverCount = queueWithImages.length;
+
   // Sort queue: items with images first, then items without images
+  // Within each group, items are already sorted by the selected option from the server
   const sortedQueue = [...queue].sort((a, b) => {
     const aHasImage = !!(a.image_url || a.thumb_url);
     const bHasImage = !!(b.image_url || b.thumb_url);
     if (aHasImage === bHasImage) return 0;
     return aHasImage ? -1 : 1;
   });
-
-  // Calculate counts only for items with images
-  const queueWithImages = queue.filter(item => item.image_url || item.thumb_url);
-  const totalItems = queueWithImages.reduce((sum, item) => sum + item.print_quantity, 0);
-  const coverCount = queueWithImages.length;
 
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>
@@ -232,6 +238,20 @@ export default function PrintQueueIndex() {
           Print Queue
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          {queue.length > 0 && (
+            <FormControl size="small" sx={{ minWidth: 180 }}>
+              <InputLabel>Sort by</InputLabel>
+              <Select
+                value={sortBy}
+                label="Sort by"
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <MenuItem value="date_added">Date Added</MenuItem>
+                <MenuItem value="book_title">Book Title</MenuItem>
+                <MenuItem value="model_number">Model Number</MenuItem>
+              </Select>
+            </FormControl>
+          )}
           {queue.length > 0 && (
             <Box sx={{ display: 'flex', gap: 1 }}>
               <Chip label={`${coverCount} cover${coverCount !== 1 ? 's' : ''}`} />

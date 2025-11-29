@@ -7,6 +7,12 @@ export async function fetchBooks({ page = 1, search = '' } = {}) {
   return get('/api/books.json', params);
 }
 
+export async function searchBooksByTitle(title) {
+  if (!title || title.trim().length === 0) return [];
+  const result = await get('/api/books.json', { search: title });
+  return result.books || [];
+}
+
 export async function fetchBook(id) {
   return get(`/api/books/${id}.json`);
 }

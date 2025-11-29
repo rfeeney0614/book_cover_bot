@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
+import Alert from '@mui/material/Alert';
 
 export default function BookForm({ initial = {}, onCancel, onSubmit }) {
   const [form, setForm] = useState({
@@ -12,10 +13,46 @@ export default function BookForm({ initial = {}, onCancel, onSubmit }) {
     page_count: initial.page_count || '',
     series: initial.series || '',
   });
+  const [duplicateWarning, setDuplicateWarning] = useState(null);
+  const [checkingDuplicate, setCheckingDuplicate] = useState(false);
+  const debounceTimer = useRef(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((f) => ({ ...f, [name]: value }));
+    
+    // Check for duplicate titles when title changes
+    if (name === 'title') {
+      setDuplicateWarning(null);
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+      
+      if (value.trim().length > 2) {
+        setCheckingDuplicate(true);
+        debounceTimer.current = setTimeout(async () => {
+          try {
+            const { searchBooksByTitle } = await import('../api/books');
+            const matches = await searchBooksByTitle(value);
+            const exactMatches = matches.filter(
+              book => book.title.toLowerCase() === value.toLowerCase() && book.id !== initial.id
+            );
+            
+            if (exactMatches.length > 0) {
+              setDuplicateWarning(
+                `A book with the title "${exactMatches[0].title}" already exists.`
+              );
+            }
+          } catch (err) {
+            console.error('Error checking for duplicate titles:', err);
+          } finally {
+            setCheckingDuplicate(false);
+          }
+        }, 500);
+      } else {
+        setCheckingDuplicate(false);
+      }
+    }
   };
 
   const submit = (e) => {
@@ -33,6 +70,11 @@ export default function BookForm({ initial = {}, onCancel, onSubmit }) {
   return (
     <Box component="form" onSubmit={submit} sx={{ maxWidth: 720 }}>
       <Stack spacing={2}>
+        {duplicateWarning && (
+          <Alert severity="warning" sx={{ mb: 1 }}>
+            {duplicateWarning}
+          </Alert>
+        )}
         <TextField
           label="Title"
           name="title"

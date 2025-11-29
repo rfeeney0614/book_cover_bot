@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
@@ -21,8 +22,10 @@ import SearchControls from '../components/SearchControls';
 import { API_BASE_URL } from '../config';
 
 export default function BooksIndex() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [books, setBooks] = useState([]);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(parseInt(searchParams.get('page')) || 1);
+  const [search, setSearch] = useState(searchParams.get('search') || '');
   const [perPage, setPerPage] = useState(15);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -36,8 +39,15 @@ export default function BooksIndex() {
   const load = (opts = {}) => {
     setLoading(true);
     setError(null);
-    const p = opts.page || page;
-    const s = opts.search !== undefined ? opts.search : undefined;
+    const p = opts.page !== undefined ? opts.page : page;
+    const s = opts.search !== undefined ? opts.search : search;
+    
+    // Update URL params
+    const params = {};
+    if (p > 1) params.page = p.toString();
+    if (s) params.search = s;
+    setSearchParams(params, { replace: true });
+    
     fetchBooks({ page: p, search: s })
       .then((data) => {
         setBooks(Array.isArray(data.books) ? data.books : data);
@@ -49,12 +59,15 @@ export default function BooksIndex() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { load({ page: 1 }); }, []);
+  useEffect(() => { 
+    // Load with params from URL on mount
+    load({ page, search }); 
+  }, []);
 
   const gotoPage = (e, p) => {
     if (p === page) return;
     setPage(p);
-    load({ page: p });
+    load({ page: p, search });
   };
 
   const totalPages = Math.max(1, Math.ceil(totalCount / perPage));
@@ -126,7 +139,15 @@ export default function BooksIndex() {
         }} />
       </Modal>
 
-      <SearchControls onSearch={(s) => { setPage(1); load({ page: 1, search: s }); }} placeholder="Search books..." />
+      <SearchControls 
+        onSearch={(s) => { 
+          setSearch(s);
+          setPage(1); 
+          load({ page: 1, search: s }); 
+        }} 
+        placeholder="Search books..." 
+        initial={search}
+      />
       
       <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
         {loading ? (

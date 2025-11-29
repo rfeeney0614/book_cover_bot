@@ -4,7 +4,20 @@ class Api::PrintQueueController < ApplicationController
     @covers = Cover.joins(:job_order, :book)
                    .includes(:book, :format, :job_order, image_attachment: :blob)
                    .where('job_orders.quantity > 0')
-                   .order('job_orders.created_at DESC')
+    
+    # Apply secondary sorting based on params
+    sort_by = params[:sort_by] || 'date_added'
+    @covers = case sort_by
+              when 'model_number'
+                # Load records first, then sort by construction_model method in Ruby
+                @covers.to_a.sort_by { |c| c.construction_model.to_s }
+              when 'book_title'
+                @covers.order('books.title ASC')
+              when 'date_added'
+                @covers.order('job_orders.created_at ASC')
+              else
+                @covers.order('job_orders.created_at ASC')
+              end
 
     covers_data = @covers.map do |cover|
       {
@@ -20,7 +33,8 @@ class Api::PrintQueueController < ApplicationController
         print_quantity: cover.job_order.quantity,
         job_order_id: cover.job_order.id,
         image_url: cover.image.attached? ? url_for(cover.image) : nil,
-        thumb_url: cover.image.attached? ? url_for(cover.image.variant(:thumb)) : nil
+        thumb_url: cover.image.attached? ? url_for(cover.image.variant(:thumb)) : nil,
+        created_at: cover.job_order.created_at
       }
     end
 
