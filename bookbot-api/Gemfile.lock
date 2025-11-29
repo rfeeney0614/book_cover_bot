@@ -232,6 +232,9 @@ GEM
       racc
     pg (1.5.9)
     pg (1.5.9-x64-mingw-ucrt)
+    pg_search (2.3.7)
+      activerecord (>= 6.1)
+      activesupport (>= 6.1)
     pkg-config (1.5.8)
     psych (5.2.1)
       date
@@ -428,6 +431,7 @@ DEPENDENCIES
   kamal
   mission_control-jobs (~> 1.0)
   pg
+  pg_search (~> 2.3)
   puma (>= 5.0)
   rack-cors
   rails (~> 8.0.0, >= 8.0.0.1)
