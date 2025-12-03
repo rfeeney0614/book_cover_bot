@@ -60,6 +60,17 @@ module Api
                         .count
       all_category_counts['book_missing_covers'] = books_count if books_count > 0
 
+      # Sort items: items with construction_model first (sorted by model number), then others
+      attention_items.sort_by! do |item|
+        if item[:construction_model].present?
+          # Items with construction_model: sort by model number (converted to integer for proper numeric sorting)
+          [0, item[:construction_model].to_s.to_i, item[:construction_model].to_s]
+        else
+          # Items without construction_model: sort after those with models, then by description
+          [1, 0, item[:description].to_s]
+        end
+      end
+
       total_all_count = all_category_counts.values.sum
       filtered_count = attention_items.count
       paginated_items = attention_items.slice(offset, per_page) || []
