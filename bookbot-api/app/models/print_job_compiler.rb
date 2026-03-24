@@ -114,7 +114,8 @@ class PrintJobCompiler
             # Rotate on-demand and cache the result
             unless rotated_cache[image_file]
               r_start = Time.now
-              rotated_cache[image_file] = create_rotated_image(tmp_user_folder, image_file)
+              # Pass only the basename to create_rotated_image
+              rotated_cache[image_file] = create_rotated_image(tmp_user_folder, File.basename(image_file))
               rotate_time += (Time.now - r_start)
             end
             image_file = rotated_cache[image_file]
