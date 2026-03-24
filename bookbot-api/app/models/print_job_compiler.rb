@@ -100,6 +100,7 @@ class PrintJobCompiler
     pdf_start = Time.now
     pdf_path = File.join(tmp_user_folder, 'images.pdf')
     rotated_cache = {} # Cache rotated images to avoid rotating the same file multiple times
+    image_object_cache = {} # Cache HexaPDF image objects to avoid re-loading the same file
     
     puts "[PrintJobCompiler] Creating PDF with #{images_to_pack.count} image instances from #{downloaded_files.count} unique files"
     
@@ -118,7 +119,13 @@ class PrintJobCompiler
             end
             image_file = rotated_cache[image_file]
           end
-          composer.image(image_file, height: image.height - 2, width: image.width - 2, position: :float, margin: [2,2,2,2])
+          
+          # Cache the HexaPDF image object to avoid re-reading the same file
+          unless image_object_cache[image_file]
+            image_object_cache[image_file] = composer.document.images.add(image_file)
+          end
+          
+          composer.image(image_object_cache[image_file], height: image.height - 2, width: image.width - 2, position: :float, margin: [2,2,2,2])
           
           processed_images += 1
           # Update progress every 5 images or on last image
