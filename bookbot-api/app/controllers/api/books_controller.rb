@@ -1,6 +1,6 @@
 module Api
   class BooksController < BaseController
-    before_action :set_book, only: [:show, :update, :destroy]
+    before_action :set_book, only: [:show, :update, :destroy, :upload_supplementary_file, :delete_supplementary_file, :download_supplementary_file]
 
     def index
       relation = Book.search(params[:search])
@@ -32,7 +32,18 @@ module Api
     end
 
     def show
-      render json: @book
+      supplementary_files_data = @book.supplementary_files.map do |file|
+        {
+          id: file.id,
+          filename: file.filename.to_s,
+          byte_size: file.byte_size,
+          content_type: file.content_type,
+          created_at: file.created_at,
+          url: url_for(file)
+        }
+      end
+      
+      render json: @book.as_json.merge({ supplementary_files: supplementary_files_data })
     end
 
     def create
@@ -55,6 +66,54 @@ module Api
     def destroy
       @book.destroy
       head :no_content
+    end
+
+    def upload_supplementary_file
+      if params[:file].present?
+        @book.supplementary_files.attach(params[:file])
+        
+        supplementary_files_data = @book.supplementary_files.map do |file|
+          {
+            id: file.id,
+            filename: file.filename.to_s,
+            byte_size: file.byte_size,
+            content_type: file.content_type,
+            created_at: file.created_at,
+            url: url_for(file)
+          }
+        end
+        
+        render json: { message: 'File uploaded successfully', supplementary_files: supplementary_files_data }, status: :ok
+      else
+        render json: { error: 'No file provided' }, status: :unprocessable_entity
+      end
+    end
+
+    def delete_supplementary_file
+      file = @book.supplementary_files.find(params[:file_id])
+      file.purge
+      
+      supplementary_files_data = @book.supplementary_files.map do |file|
+        {
+          id: file.id,
+          filename: file.filename.to_s,
+          byte_size: file.byte_size,
+          content_type: file.content_type,
+          created_at: file.created_at,
+          url: url_for(file)
+        }
+      end
+      
+      render json: { message: 'File deleted successfully', supplementary_files: supplementary_files_data }, status: :ok
+    rescue ActiveRecord::RecordNotFound
+      render json: { error: 'File not found' }, status: :not_found
+    end
+
+    def download_supplementary_file
+      file = @book.supplementary_files.find(params[:file_id])
+      redirect_to url_for(file), allow_other_host: true
+    rescue ActiveRecord::RecordNotFound
+      render json: { error: 'File not found' }, status: :not_found
     end
 
     def export

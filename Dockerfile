@@ -28,10 +28,9 @@ RUN apt-get update -qq && \
     && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-# Set production environment
-ENV RAILS_ENV="production" \
-    BUNDLE_DEPLOYMENT="1" \
-    BUNDLE_PATH="/usr/local/bundle" 
+# Set environment (can be overridden by docker-compose)
+ENV BUNDLE_PATH="/usr/local/bundle"
+# RAILS_ENV will be set by docker-compose or runtime environment 
 
 # Throw-away build stage to reduce size of final image
 FROM base AS build
@@ -72,14 +71,24 @@ FROM base
 COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
 COPY --from=build /rails /rails
 
+# Copy entrypoint script
+COPY bookbot-api/docker-entrypoint.sh /usr/bin/
+RUN chmod +x /usr/bin/docker-entrypoint.sh
+
 # Run and own only the runtime files as a non-root user for security
 RUN groupadd --system --gid 1000 rails && \
     useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash && \
-    chown -R rails:rails db log storage tmp
+    chown -R rails:rails db log storage tmp && \
+    mkdir -p tmp/pids && \
+    chown -R rails:rails tmp/pids
+
 USER 1000:1000
+
+# Set entrypoint to handle PID cleanup
+ENTRYPOINT ["/usr/bin/docker-entrypoint.sh"]
 
 # Expose the port your Rails app runs on (e.g., 3000)
 EXPOSE 3000
 
 # Command to run the Rails server
-CMD ["rails", "server", "-b", "0.0.0.0"]
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]

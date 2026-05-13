@@ -10,7 +10,7 @@ class Api::PrintQueueController < ApplicationController
     @covers = case sort_by
               when 'model_number'
                 # Load records first, then sort by construction_model method in Ruby
-                @covers.to_a.sort_by { |c| c.construction_model.to_s }
+                @covers.to_a.sort_by { |c| [c.construction_model.to_s.match?(/^\d+$/) ? 0 : 1, c.construction_model.to_i] }
               when 'book_title'
                 @covers.order('books.title ASC')
               when 'date_added'

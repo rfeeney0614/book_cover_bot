@@ -17,7 +17,10 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import { fetchBook, updateBook, deleteBook } from '../api/book';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import DownloadIcon from '@mui/icons-material/Download';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import { fetchBook, updateBook, deleteBook, uploadSupplementaryFile, deleteSupplementaryFile, downloadSupplementaryFile } from '../api/book';
 import { fetchCoversForBook, fetchCover, updateCover, deleteCover, createCover, uploadCoverImage } from '../api/covers';
 import { incrementJobOrder, decrementJobOrder } from '../api/printQueue';
 import { createJobOrder } from '../api/job_orders';
@@ -41,9 +44,12 @@ export default function BookShow() {
     const [deleteOpen, setDeleteOpen] = useState(false);
     const [deletingCover, setDeletingCover] = useState(null);
     const [deleting, setDeleting] = useState(false);
-    const [creating, setCreating] = useState(false);
-    const [deleteBookOpen, setDeleteBookOpen] = useState(false);
-    const [deletingBook, setDeletingBook] = useState(false);
+  const [supplementaryFiles, setSupplementaryFiles] = useState([]);
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [deletingFileId, setDeletingFileId] = useState(null);
+  const [deleteBookOpen, setDeleteBookOpen] = useState(false);
+  const [deletingBook, setDeletingBook] = useState(false);
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -51,6 +57,7 @@ export default function BookShow() {
     fetchBook(id)
       .then((data) => {
         if (!mounted) return;
+        setSupplementaryFiles(data.supplementary_files || []);
         setBook(data);
       })
       .catch((err) => setError(err.message || String(err)))
@@ -158,6 +165,54 @@ export default function BookShow() {
     } catch (e) {
       setError(e.message || String(e));
     }
+  };
+
+  const handleFileUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    setUploadingFile(true);
+    setError(null);
+    try {
+      const result = await uploadSupplementaryFile(id, file);
+      setSupplementaryFiles(result.supplementary_files || []);
+    } catch (e) {
+      setError(e.message || String(e));
+    } finally {
+      setUploadingFile(false);
+      // Reset file input
+      event.target.value = '';
+    }
+  };
+
+  const handleDeleteFile = async (fileId) => {
+    setDeletingFileId(fileId);
+    setError(null);
+    try {
+      const result = await deleteSupplementaryFile(id, fileId);
+      setSupplementaryFiles(result.supplementary_files || []);
+    } catch (e) {
+      setError(e.message || String(e));
+    } finally {
+      setDeletingFileId(null);
+    }
+  };
+
+  const handleDownloadFile = (file) => {
+    const url = downloadSupplementaryFile(id, file.id);
+    // Create a temporary anchor element to trigger download
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = file.filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
   if (loading) return (
@@ -314,6 +369,78 @@ export default function BookShow() {
                 <Typography>Nothing selected.</Typography>
               )}
             </Modal>
+          </Box>
+
+          <Box sx={{ mt: 4 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h5" component="h2">
+                Supplementary Files
+              </Typography>
+              <Button
+                variant="contained"
+                component="label"
+                startIcon={<UploadFileIcon />}
+                disabled={uploadingFile}
+              >
+                {uploadingFile ? 'Uploading...' : 'Upload File'}
+                <input
+                  type="file"
+                  hidden
+                  onChange={handleFileUpload}
+                />
+              </Button>
+            </Box>
+            
+            {supplementaryFiles.length === 0 ? (
+              <Paper sx={{ p: 3 }}>
+                <Box sx={{ textAlign: 'center', color: 'text.secondary' }}>
+                  <AttachFileIcon sx={{ fontSize: 48, mb: 1, opacity: 0.5 }} />
+                  <Typography>No supplementary files uploaded yet</Typography>
+                </Box>
+              </Paper>
+            ) : (
+              <Paper sx={{ p: 0 }}>
+                {supplementaryFiles.map((file, index) => (
+                  <Box
+                    key={file.id}
+                    sx={{
+                      p: 2,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 2,
+                      borderBottom: index < supplementaryFiles.length - 1 ? '1px solid' : 'none',
+                      borderColor: 'divider',
+                      '&:hover': { bgcolor: 'action.hover' }
+                    }}
+                  >
+                    <AttachFileIcon sx={{ color: 'text.secondary' }} />
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Typography variant="body1" sx={{ fontWeight: 500, wordBreak: 'break-word' }}>
+                        {file.filename}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {formatFileSize(file.byte_size)} • {new Date(file.created_at).toLocaleDateString()}
+                      </Typography>
+                    </Box>
+                    <IconButton
+                      onClick={() => handleDownloadFile(file)}
+                      color="primary"
+                      title="Download file"
+                    >
+                      <DownloadIcon />
+                    </IconButton>
+                    <IconButton
+                      onClick={() => handleDeleteFile(file.id)}
+                      color="error"
+                      disabled={deletingFileId === file.id}
+                      title="Delete file"
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
+                ))}
+              </Paper>
+            )}
           </Box>
         </Box>
       ) : (

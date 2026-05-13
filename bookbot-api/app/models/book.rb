@@ -3,6 +3,7 @@ class Book < ApplicationRecord
   
   validates :title, presence: true
   has_many :covers, dependent: :destroy
+  has_many_attached :supplementary_files
 
   pg_search_scope :search_by_all_fields,
     against: {

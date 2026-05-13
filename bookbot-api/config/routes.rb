@@ -27,6 +27,11 @@ Rails.application.routes.draw do
       collection do
         get :export
       end
+      member do
+        post :upload_supplementary_file
+        delete 'delete_supplementary_file/:file_id', action: :delete_supplementary_file, as: :delete_supplementary_file
+        get 'download_supplementary_file/:file_id', action: :download_supplementary_file, as: :download_supplementary_file
+      end
     end
     resources :covers, only: [:index, :show, :create, :update, :destroy]
     resources :formats, only: [:index, :show, :create, :update, :destroy]
