@@ -53,7 +53,7 @@ export default function FormatCard({ format, onDelete, onSetDefault, onEdit }) {
               <EditIcon />
             </IconButton>
             <IconButton
-              onClick={() => onDelete && onDelete(format.id)}
+              onClick={() => onDelete && onDelete(format)}
               size="small"
               color="error"
             >
