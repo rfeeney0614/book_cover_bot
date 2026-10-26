@@ -62,9 +62,23 @@ module Api
     end
 
     def format_attributes
-      raw = params[:format].presence || params
-      raw = JSON.parse(raw) if raw.is_a?(String)
+      raw = params.to_unsafe_h
+      raw = raw[:format] if raw.is_a?(Hash) && raw.key?(:format)
+      raw = raw["format"] if raw.is_a?(Hash) && raw.key?("format")
       raw = raw.to_h if raw.respond_to?(:to_h)
+
+      if raw.is_a?(String) && raw.start_with?("{", "[")
+        begin
+          raw = JSON.parse(raw)
+        rescue JSON::ParserError
+          raw = {}
+        end
+      end
+
+      raw = raw.to_h if raw.respond_to?(:to_h)
+      raw = raw[:format] || raw["format"] if raw.is_a?(Hash) && (raw.key?(:format) || raw.key?("format"))
+      raw = raw.to_h if raw.respond_to?(:to_h)
+      return {} unless raw.is_a?(Hash)
 
       raw.slice("name", "height", "default").transform_keys(&:to_sym)
     end
