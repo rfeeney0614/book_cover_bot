@@ -95,7 +95,7 @@ export default function FormatsIndex() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ default: true }),
+        body: JSON.stringify({ format: { default: true } }),
       });
       if (!res.ok) {
         const text = await res.text().catch(() => '');

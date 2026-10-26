@@ -2,10 +2,8 @@
 
 one:
   name: MyString
-  width: 1
   height: 1
 
 two:
-  name: MyString
-  width: 1
+  name: MyString2
   height: 1

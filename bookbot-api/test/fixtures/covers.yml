@@ -2,8 +2,10 @@
 
 one:
   edition: MyString
-  format: MyString
+  book: one
+  format: one
 
 two:
   edition: MyString
-  format: MyString
+  book: two
+  format: one

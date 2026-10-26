@@ -13,42 +13,34 @@ module Api
 
     def create
       @format = Format.new(format_params)
-      if @format.save
-        render json: @format, status: :created
-      else
-        render_errors(@format)
+
+      ActiveRecord::Base.transaction do
+        @format.save!
+        sync_construction_mappings if mappings_submitted?
       end
+
+      render json: format_json, status: :created
+    rescue ActiveRecord::RecordInvalid => e
+      render_errors(e.record)
     end
 
     def update
-      Rails.logger.info("Api::FormatsController#update called with params: #{params.to_unsafe_h.inspect}")
-
       ActiveRecord::Base.transaction do
-        format_attrs = format_attributes
-
-        Rails.logger.info("Resolved format_attrs: #{format_attrs.inspect}")
-
-        if @format.update(format_attrs)
-          if params[:construction_mappings].present?
-            update_construction_mappings(params[:construction_mappings])
-          end
-
-          Rails.logger.info("Format ##{@format.id} updated successfully: #{@format.attributes.inspect}")
-          render json: @format.as_json(include: { construction_mappings: { only: [:id, :min_pages, :max_pages, :construction_model] } })
-        else
-          Rails.logger.warn("Failed to update Format ##{@format.id}: #{@format.errors.full_messages.inspect}")
-          render_errors(@format)
-        end
+        @format.update!(format_params)
+        sync_construction_mappings if mappings_submitted?
       end
-    rescue => e
-      Rails.logger.error("Error updating format: #{e.message}")
-      Rails.logger.error(e.backtrace.join("\n"))
-      render json: { errors: [e.message] }, status: :unprocessable_entity
+
+      render json: format_json
+    rescue ActiveRecord::RecordInvalid => e
+      render_errors(e.record)
     end
 
     def destroy
-      @format.destroy
-      head :no_content
+      if @format.destroy
+        head :no_content
+      else
+        render_errors(@format)
+      end
     end
 
     private
@@ -57,57 +49,38 @@ module Api
       @format = Format.find(params[:id])
     end
 
+    # The frontend sends { format: { name, height, default }, construction_mappings: [...] }.
+    # Rails reserves params[:format] for the request format (the ".json" in the URL) and the
+    # path value overrides the body, so the JSON body is read directly instead.
+    def body_params
+      @body_params ||= ActionController::Parameters.new(request.request_parameters)
+    end
+
     def format_params
-      format_attributes
+      body_params.fetch(:format, {}).permit(:name, :height, :default)
     end
 
-    def format_attributes
-      raw = params.to_unsafe_h
-      raw = raw[:format] if raw.is_a?(Hash) && raw.key?(:format)
-      raw = raw["format"] if raw.is_a?(Hash) && raw.key?("format")
-      raw = raw.to_h if raw.respond_to?(:to_h)
-
-      if raw.is_a?(String) && raw.start_with?("{", "[")
-        begin
-          raw = JSON.parse(raw)
-        rescue JSON::ParserError
-          raw = {}
-        end
-      end
-
-      raw = raw.to_h if raw.respond_to?(:to_h)
-      raw = raw[:format] || raw["format"] if raw.is_a?(Hash) && (raw.key?(:format) || raw.key?("format"))
-      raw = raw.to_h if raw.respond_to?(:to_h)
-      return {} unless raw.is_a?(Hash)
-
-      raw.slice("name", "height", "default").transform_keys(&:to_sym)
+    def mappings_submitted?
+      body_params.key?(:construction_mappings)
     end
 
-    def update_construction_mappings(mappings_data)
-      # Get IDs of mappings we're keeping/updating
-      incoming_ids = mappings_data.map { |m| m[:id] }.compact
+    def mappings_params
+      body_params.permit(construction_mappings: [:id, :min_pages, :max_pages, :construction_model])
+                 .fetch(:construction_mappings, [])
+    end
 
-      # Delete mappings not in the incoming list
-      @format.construction_mappings.where.not(id: incoming_ids).destroy_all
+    def format_json
+      @format.reload.as_json(include: { construction_mappings: { only: [:id, :min_pages, :max_pages, :construction_model] } })
+    end
 
-      # Create or update mappings
-      mappings_data.each do |mapping_attrs|
-        if mapping_attrs[:id].present?
-          # Update existing
-          mapping = @format.construction_mappings.find(mapping_attrs[:id])
-          mapping.update!(
-            min_pages: mapping_attrs[:min_pages],
-            max_pages: mapping_attrs[:max_pages],
-            construction_model: mapping_attrs[:construction_model]
-          )
-        else
-          # Create new
-          @format.construction_mappings.create!(
-            min_pages: mapping_attrs[:min_pages],
-            max_pages: mapping_attrs[:max_pages],
-            construction_model: mapping_attrs[:construction_model]
-          )
-        end
+    # Replaces the format's mappings with the submitted list.
+    def sync_construction_mappings
+      submitted = mappings_params
+      @format.construction_mappings.where.not(id: submitted.filter_map { |m| m[:id].presence }).destroy_all
+
+      submitted.each do |attrs|
+        mapping = attrs[:id].present? ? @format.construction_mappings.find(attrs[:id]) : @format.construction_mappings.new
+        mapping.update!(attrs.slice(:min_pages, :max_pages, :construction_model))
       end
     end
   end

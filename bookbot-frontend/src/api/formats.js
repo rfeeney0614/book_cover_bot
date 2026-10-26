@@ -8,19 +8,23 @@ export async function fetchFormat(id) {
   return get(`/api/formats/${id}.json`);
 }
 
-export async function createFormat(payload) {
-  return post('/api/formats.json', { format: payload });
-}
-
-export async function updateFormat(id, payload) {
-  return put(`/api/formats/${id}.json`, {
+function formatBody(payload) {
+  return {
     format: {
       name: payload.name,
       height: payload.height,
       default: payload.default
     },
     construction_mappings: payload.construction_mappings || []
-  });
+  };
+}
+
+export async function createFormat(payload) {
+  return post('/api/formats.json', formatBody(payload));
+}
+
+export async function updateFormat(id, payload) {
+  return put(`/api/formats/${id}.json`, formatBody(payload));
 }
 
 export async function deleteFormat(id) {

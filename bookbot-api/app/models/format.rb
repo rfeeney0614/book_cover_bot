@@ -1,6 +1,7 @@
 
 class Format < ApplicationRecord
   has_many :construction_mappings, dependent: :destroy
+  has_many :covers, dependent: :restrict_with_error
 
   before_save :unset_other_defaults, if: :default?
 
