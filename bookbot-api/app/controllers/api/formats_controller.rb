@@ -22,27 +22,17 @@ module Api
 
     def update
       Rails.logger.info("Api::FormatsController#update called with params: #{params.to_unsafe_h.inspect}")
-      
+
       ActiveRecord::Base.transaction do
-        # Extract format attributes from params
-        format_attrs = {}
-        format_attrs[:name] = params[:name] if params[:name].present?
-        format_attrs[:height] = params[:height] if params[:height].present?
-        format_attrs[:default] = params[:default] if params.key?(:default)
-        
-        # If format is nested, use that instead
-        if params[:format].is_a?(Hash)
-          format_attrs = params[:format].permit(:name, :height, :default).to_h
-        end
-        
+        format_attrs = format_attributes
+
         Rails.logger.info("Resolved format_attrs: #{format_attrs.inspect}")
-        
+
         if @format.update(format_attrs)
-          # Handle construction mappings if provided
           if params[:construction_mappings].present?
             update_construction_mappings(params[:construction_mappings])
           end
-          
+
           Rails.logger.info("Format ##{@format.id} updated successfully: #{@format.attributes.inspect}")
           render json: @format.as_json(include: { construction_mappings: { only: [:id, :min_pages, :max_pages, :construction_model] } })
         else
@@ -68,12 +58,15 @@ module Api
     end
 
     def format_params
-      # Accept either nested params (`format: { ... }`) or top-level params.
-      if params[:format]
-        params.require(:format).permit(:name, :height, :default)
-      else
-        params.permit(:name, :height, :default)
-      end
+      format_attributes
+    end
+
+    def format_attributes
+      raw = params[:format].presence || params
+      raw = JSON.parse(raw) if raw.is_a?(String)
+      raw = raw.to_h if raw.respond_to?(:to_h)
+
+      raw.slice("name", "height", "default").transform_keys(&:to_sym)
     end
 
     def update_construction_mappings(mappings_data)
